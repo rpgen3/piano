@@ -1,5 +1,6 @@
-const s = new Set;
+onst s = new Set;
 $(window)
-    .on('keydown keyup', ({key, type}) => (type === 'keydown' ? s.add(key) : s.delete(key), false))
+    .on('keydown', ({key}) => (s.add(key), false))
+    .on('keyup', ({key}) => (s.delete(key), false))
     .on('blur contextmenu mouseleave', () => s.clear());
 export const keyboard = s;
