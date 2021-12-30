@@ -125,25 +125,24 @@
         }).trigger('input');
     }
     SoundFont_surikov_list.init();
-    {
+    const selectMode = (() => {
         const {html} = addHideArea('play piano');
         const selectMode = rpgen3.addSelect(html, {
             label: 'piano mode',
             save: true,
             list: {
-                'chord piano': true,
-                'normal piano': false
+                'normal piano': true,
+                'chord piano': false
             }
         });
         selectMode.elm.on('change', () => {
             cvSymbol.clear();
-            if(!selectMode()) return;
+            if(selectMode()) return;
             for(const key of pianoKeys) {
-                1;
+
             }
         });
-        setTimeout(() => selectMode.elm.trigger('change'));
-    }
+    })();
     LayeredCanvas.init($('<div>').appendTo(main));
     const cvWhite = new LayeredCanvas(),
           cvWhiteEffect = new LayeredCanvas(),
@@ -209,9 +208,11 @@
             note: v
         });
     };
+    const c3 = rpgen4.piano.note2index('C3');
+    let nowChord = null;
     const update = () => {
         requestAnimationFrame(update);
-        const c3 = rpgen4.piano.note2index('C3');
+        const isNormalPiano = selectMode();
         for(const [i, v] of pianoKeys.entries()) {
             const {x, w, h, isBlack, pressed, key} = v,
                   isPressed = keyboard.has(key),
@@ -226,16 +227,23 @@
                 v.pressed = true;
                 ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
                 ctx.fillRect(x, 0, w, h);
-                sf?.play({
+                if(isNormalPiano) sf?.play({
                     ctx: audioNode.ctx,
                     destination: audioNode.note,
                     note: rpgen4.piano.note[c3 + i]
                 });
             }
         }
+        if(isNormalPiano) return;
     };
-    fetchList('https://rpgen3.github.io/piano/list/keys.txt').then(list => {
-        for(const [i, v] of pianoKeys.entries()) v.key = list[i];
+    Promise.all([
+        'keys',
+        'chord'
+    ].map(v => `https://rpgen3.github.io/piano/list/${v}.txt`)).then(([a, b]) => {
+        for(const [i, v] of rpgen4.piano.keys.entries()) pianoKeys[i].chord = v;
+        for(const [i, v] of a.entries()) pianoKeys[i + 12].chord = v;
+        for(const [i, v] of b.entries()) pianoKeys[i].key = v;
+        selectMode.elm.trigger('change');
         update();
     });
 })();
