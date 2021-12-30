@@ -145,9 +145,11 @@
         setTimeout(() => selectMode.elm.trigger('change'));
     }
     LayeredCanvas.init($('<div>').appendTo(main));
-    const cvPiano = new LayeredCanvas(),
-          cvSymbol = new LayeredCanvas(),
-          cvEffect = new LayeredCanvas();
+    const cvWhite = new LayeredCanvas(),
+          cvWhiteEffect = new LayeredCanvas(),
+          cvBlack = new LayeredCanvas(),
+          cvBlackEffect = new LayeredCanvas(),
+          cvSymbol = new LayeredCanvas();
     const pianoKeys = (() => {
         class Key {
             constructor(x, w, h, isBlack){
@@ -161,26 +163,25 @@
         const keys = [...Array(12 * 2).fill(null)],
               keysLen = 7 * 2,
               key = {w: 50, h: 200},
-              keyBlack = {w: 30, h: 100},
-              {ctx} = cvPiano;
-        ctx.lineWidth = 4;
+              keyBlack = {w: 30, h: 100};
+        cvWhite.ctx.lineWidth = 4;
         LayeredCanvas.html.find('canvas').prop({
             width:  key.w * keysLen,
             height: key.h
         });
-        ctx.beginPath();
+        cvWhite.ctx.beginPath();
         {
             const a = [0, 2, 4, 5, 7, 9, 11],
                   b = [a, a.map(v => v + 12)].flat();
             for(let i = 0; i < keysLen; i++) {
                 const {w, h} = key,
                       x = i * w;
-                ctx.rect(x, 0, w, h);
+                cvWhite.ctx.rect(x, 0, w, h);
                 keys[b[i]] = new Key(x, w, h, false);
             }
         }
-        ctx.stroke();
-        ctx.beginPath();
+        cvWhite.ctx.stroke();
+        cvBlack.ctx.beginPath();
         {
             const a = [1, 3, 6, 8, 10],
                   b = [a, a.map(v => v + 12)].flat();
@@ -190,12 +191,12 @@
                       space = w - 1;
                 for(const [j, v] of a.entries()) {
                     const x = _w + v * space;
-                    ctx.rect(x, 0, w, h);
+                    cvBlack.ctx.rect(x, 0, w, h);
                     keys[b[i * a.length + j]] = new Key(x, w, h, true);
                 }
             }
         }
-        ctx.fill();
+        cvBlack.ctx.fill();
         return keys;
     })();
     const playChord = (note, chord, inversion) => {
@@ -210,10 +211,10 @@
     };
     const update = () => {
         requestAnimationFrame(update);
-        const {ctx} = cvEffect;
         for(const [i, v] of pianoKeys.entries()) {
             const {x, w, h, isBlack, pressed, key} = v,
-                  isPressed = keyboard.has(key);
+                  isPressed = keyboard.has(key),
+                  {ctx} = isBlack ? cvBlackEffect : cvWhiteEffect;
             if(pressed) {
                 if(isPressed) continue;
                 v.pressed = false;
