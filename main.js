@@ -138,8 +138,9 @@
         selectMode.elm.on('change', () => {
             cvSymbol.clear();
             if(selectMode()) return;
-            for(const key of pianoKeys) {
-
+            for(const [i, v] of pianoKeys.entries()) {
+                const{x, w, h, isBlack, chord} = v;
+                // now coding
             }
         });
     })();
@@ -214,8 +215,8 @@
         requestAnimationFrame(update);
         const isNormalPiano = selectMode();
         for(const [i, v] of pianoKeys.entries()) {
-            const {x, w, h, isBlack, pressed, key} = v,
-                  isPressed = keyboard.has(key),
+            const {x, w, h, isBlack, pressed, input} = v,
+                  isPressed = keyboard.has(input),
                   {ctx} = isBlack ? cvBlackEffect : cvWhiteEffect;
             if(pressed) {
                 if(isPressed) continue;
@@ -237,12 +238,12 @@
         if(isNormalPiano) return;
     };
     Promise.all([
-        'keys',
-        'chord'
+        'chord',
+        'keyboard'
     ].map(v => `https://rpgen3.github.io/piano/list/${v}.txt`)).then(([a, b]) => {
         for(const [i, v] of rpgen4.piano.keys.entries()) pianoKeys[i].chord = v;
         for(const [i, v] of a.entries()) pianoKeys[i + 12].chord = v;
-        for(const [i, v] of b.entries()) pianoKeys[i].key = v;
+        for(const [i, v] of b.entries()) pianoKeys[i].input = v;
         selectMode.elm.trigger('change');
         update();
     });
