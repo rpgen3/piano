@@ -137,12 +137,18 @@
         });
         selectMode.elm.on('change', () => {
             cvSymbol.clear();
-            if(selectMode()) return;
+            const mode = selectMode();
             for(const [i, v] of pianoKeys.entries()) {
-                const{x, w, h, isBlack, chord} = v;
-                // now coding
+                const{x, w, h, isBlack, chord, note} = v,
+                      {ctx} = cvSymbol;
+                ctx.fillStyle = isBlack ? 'white' : 'black';
+                ctx.font = 'bold 16px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(mode ? note : chord, x + w / 2, h - 10, w);
             }
         });
+        return selectMode;
     })();
     LayeredCanvas.init($('<div>').appendTo(main));
     const cvWhite = new LayeredCanvas(),
@@ -240,10 +246,13 @@
     Promise.all([
         'chord',
         'keyboard'
-    ].map(v => `https://rpgen3.github.io/piano/list/${v}.txt`)).then(([a, b]) => {
+    ].map(v => `https://rpgen3.github.io/piano/list/${v}.txt`).map(fetchList)).then(([a, b]) => {
         for(const [i, v] of rpgen4.piano.keys.entries()) pianoKeys[i].chord = v;
         for(const [i, v] of a.entries()) pianoKeys[i + 12].chord = v;
-        for(const [i, v] of b.entries()) pianoKeys[i].input = v;
+        for(const [i, v] of b.entries()) {
+            pianoKeys[i].input = v;
+            pianoKeys[i].note = rpgen4.piano.note[c3 + i];
+        }
         selectMode.elm.trigger('change');
         update();
     });
