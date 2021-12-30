@@ -1,4 +1,4 @@
-onst s = new Set;
+const s = new Set;
 $(window)
     .on('keydown', ({key}) => (s.add(key), false))
     .on('keyup', ({key}) => (s.delete(key), false))
