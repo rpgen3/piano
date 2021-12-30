@@ -97,6 +97,7 @@
                 })
             ], notSelected);
         });
+        SoundFont_surikov_list.init();
         selectInstrument.elm.on('change', async () => {
             const ins = selectInstrument();
             if(ins === notSelected) return;
@@ -124,7 +125,6 @@
             audioNode.note.gain.value = inputVolume() / 100;
         }).trigger('input');
     }
-    SoundFont_surikov_list.init();
     const selectMode = (() => {
         const {html} = addHideArea('select piano mode');
         const selectMode = rpgen3.addSelect(html, {
@@ -246,7 +246,6 @@
         }
     };
     const playChord = (note, chord) => {
-        audioNode.init();
         const root = rpgen4.piano.note2index(note),
               a = chord.map(v => v + root).map(v => rpgen4.piano.note[v]);
         for(const v of a) sf?.play({
