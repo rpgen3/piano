@@ -23,7 +23,8 @@
         'https://rpgen3.github.io/midi/mjs/piano.mjs',
         [
             'LayeredCanvas',
-            'keyboard'
+            'keyboard',
+            'resize'
         ].map(v => `https://rpgen3.github.io/piano/mjs/${v}.mjs`),
         [
             'chord',
@@ -126,7 +127,7 @@
         }).trigger('input');
     }
     const selectMode = (() => {
-        const {html} = addHideArea('select piano mode');
+        const {html} = addHideArea('select mode');
         const selectMode = rpgen3.addSelect(html, {
             label: 'piano mode',
             save: true,
@@ -267,4 +268,39 @@
         selectMode.elm.trigger('change');
         update();
     });
+    (() => {
+        const {html} = addHideArea('auto chord');
+        const selectSample = rpgen3.addSelect(html, {
+            label: 'sample chord'
+        });
+        selectSample.elm.on('change', () => {
+            const mode = selectMode();
+            for(const [i, v] of pianoKeys.entries()) {
+                const{x, w, h, isBlack, chord, note} = v,
+                      {ctx} = cvSymbol;
+                ctx.fillStyle = isBlack ? 'white' : 'black';
+                ctx.font = 'bold 20px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+                ctx.fillText(mode ? note : chord, x + w / 2, ...[h, w].map(v => v - 10));
+            }
+        });
+        const inputChord = rpgen3.addInputStr(html, {
+            label: 'input chord',
+            textarea: true,
+            save: true
+        });
+        rpgen4.resize(inputChord.elm.on('keydown', e => e.stopPropagation()));
+        const inputBPM = rpgen3.addInputNum(html, {
+            label: 'BPM',
+            save: true,
+            value: 135,
+            min: 40,
+            max: 400
+        });
+        $('<dd>').appendTo(html);
+        rpgen3.addBtn(html, 'play', () => {
+            // coding now...
+        }).addClass('btn');
+    })();
 })();
