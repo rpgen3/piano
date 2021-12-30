@@ -126,7 +126,7 @@
     }
     SoundFont_surikov_list.init();
     const selectMode = (() => {
-        const {html} = addHideArea('play piano');
+        const {html} = addHideArea('select piano mode');
         const selectMode = rpgen3.addSelect(html, {
             label: 'piano mode',
             save: true,
@@ -205,18 +205,8 @@
         cvBlack.ctx.fill();
         return keys;
     })();
-    const playChord = (note, chord, inversion) => {
-        audioNode.init();
-        const root = rpgen4.piano.note2index(note),
-              a = rpgen4.inversion(chord, inversion).map(v => v + root).map(v => rpgen4.piano.note[v]);
-        for(const v of a) sf?.play({
-            ctx: audioNode.ctx,
-            destination: audioNode.note,
-            note: v
-        });
-    };
     const c3 = rpgen4.piano.note2index('C3');
-    let nowChord = null;
+    let disabledChord = false;
     const update = () => {
         requestAnimationFrame(update);
         const isNormalPiano = selectMode();
@@ -242,12 +232,34 @@
             }
         }
         if(isNormalPiano) return;
+        const keys = pianoKeys.slice(0, 12),
+              chords = pianoKeys.slice(12),
+              [key, chord] = [keys, chords].map(v => v.find(v => v.pressed)),
+              isUnfulled = !(key && chord);
+        if(disabledChord) {
+            if(isUnfulled) disabledChord = false;
+        }
+        else {
+            if(isUnfulled) return;
+            disabledChord = true;
+            playChord(key.chord + 3, rpgen4.chord[chord.chord]);
+        }
+    };
+    const playChord = (note, chord) => {
+        audioNode.init();
+        const root = rpgen4.piano.note2index(note),
+              a = chord.map(v => v + root).map(v => rpgen4.piano.note[v]);
+        for(const v of a) sf?.play({
+            ctx: audioNode.ctx,
+            destination: audioNode.note,
+            note: v
+        });
     };
     Promise.all([
         'chord',
         'keyboard'
     ].map(v => `https://rpgen3.github.io/piano/list/${v}.txt`).map(fetchList)).then(([a, b]) => {
-        for(const [i, v] of rpgen4.piano.keys.entries()) pianoKeys[i].chord = v;
+        for(const [i, v] of rpgen4.piano.keys.entries()) pianoKeys[(i + 9) % 12].chord = v;
         for(const [i, v] of a.entries()) pianoKeys[i + 12].chord = v;
         for(const [i, v] of b.entries()) {
             pianoKeys[i].input = v;
