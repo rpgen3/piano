@@ -211,6 +211,7 @@
     };
     const update = () => {
         requestAnimationFrame(update);
+        const c3 = rpgen4.piano.note2index('C3');
         for(const [i, v] of pianoKeys.entries()) {
             const {x, w, h, isBlack, pressed, key} = v,
                   isPressed = keyboard.has(key),
@@ -225,6 +226,11 @@
                 v.pressed = true;
                 ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
                 ctx.fillRect(x, 0, w, h);
+                sf?.play({
+                    ctx: audioNode.ctx,
+                    destination: audioNode.note,
+                    note: rpgen4.piano.note[c3 + i]
+                });
             }
         }
     };
