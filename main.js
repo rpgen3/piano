@@ -12,7 +12,7 @@
     const head = $('<header>').appendTo(html),
           main = $('<main>').appendTo(html),
           foot = $('<footer>').appendTo(html);
-    $('<h1>').appendTo(head).text('chord');
+    $('<h1>').appendTo(head).text('chord piano');
     const rpgen3 = await importAll([
         'random',
         'input',
@@ -186,18 +186,18 @@
                   b = [a, a.map(v => v + 12)].flat();
             for(let i = 0; i < 2; i++) {
                 const {w, h} = keyBlack,
-                      a = i * key.w * 7,
+                      _w = i * key.w * 7,
                       space = w - 1;
-                for(const [j, v] of [1, 3, 6, 8, 10].entries()) {
-                    const x = a + v * space;
+                for(const [j, v] of a.entries()) {
+                    const x = _w + v * space;
                     ctx.rect(x, 0, w, h);
-                    keys[b[i * j]] = new Key(x, w, h, true);
+                    keys[b[i * a.length + j]] = new Key(x, w, h, true);
                 }
             }
         }
         ctx.fill();
         return keys;
-    });
+    })();
     const playChord = (note, chord, inversion) => {
         audioNode.init();
         const root = rpgen4.piano.note2index(note),
