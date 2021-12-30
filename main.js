@@ -142,10 +142,10 @@
                 const{x, w, h, isBlack, chord, note} = v,
                       {ctx} = cvSymbol;
                 ctx.fillStyle = isBlack ? 'white' : 'black';
-                ctx.font = 'bold 16px sans-serif';
+                ctx.font = 'bold 20px sans-serif';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'bottom';
-                ctx.fillText(mode ? note : chord, x + w / 2, h - 10, w);
+                ctx.fillText(mode ? note : chord, x + w / 2, ...[h, w].map(v => v - 10));
             }
         });
         return selectMode;
@@ -168,8 +168,8 @@
         }
         const keys = [...Array(12 * 2).fill(null)],
               keysLen = 7 * 2,
-              key = {w: 50, h: 200},
-              keyBlack = {w: 30, h: 100};
+              key = {w: 60, h: 200},
+              keyBlack = {w: 40, h: 100};
         cvWhite.ctx.lineWidth = 4;
         LayeredCanvas.html.find('canvas').prop({
             width:  key.w * keysLen,
@@ -194,7 +194,7 @@
             for(let i = 0; i < 2; i++) {
                 const {w, h} = keyBlack,
                       _w = i * key.w * 7,
-                      space = w - 1;
+                      space = w - 5;
                 for(const [j, v] of a.entries()) {
                     const x = _w + v * space;
                     cvBlack.ctx.rect(x, 0, w, h);
