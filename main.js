@@ -348,6 +348,7 @@
         };
         rpgen3.addBtn(html, 'stop', stop).addClass('btn');
         rpgen3.addBtn(html, 'play', () => {
+            stop();
             parseChord();
             startTime = audioNode.ctx.currentTime - timeline[0].when + coolTime;
             nowIndex = 0;
