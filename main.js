@@ -207,10 +207,9 @@
         return keys;
     })();
     const c3 = rpgen4.piano.note2index('C3');
-    let disabledChord = false,
-        g_id = -1;
+    let disabledChord = false;
     const update = () => {
-        g_id = requestAnimationFrame(update);
+        requestAnimationFrame(update);
         const isNormalPiano = selectMode();
         for(const [i, v] of pianoKeys.entries()) {
             const {x, w, h, isBlack, pressed, input} = v,
@@ -342,33 +341,28 @@
             const last = timeline[timeline.length - 1];
             endTime = last.when + last.duration;
         };
-        rpgen3.addBtn(html, 'stop', () => {
-            cancelAnimationFrame(g_id);
-            update();
+        const stop = () => {
+            clearInterval(intervalId);
             cvWhiteEffect.clear();
             cvBlackEffect.clear();
-        }).addClass('btn');
+        };
+        rpgen3.addBtn(html, 'stop', stop).addClass('btn');
         rpgen3.addBtn(html, 'play', () => {
-            cancelAnimationFrame(g_id);
             parseChord();
             startTime = audioNode.ctx.currentTime - timeline[0].when + coolTime;
             nowIndex = 0;
-            playing();
+            intervalId = setInterval(playChordProgression);
         }).addClass('btn');
         const timeline = [],
               planTime = 0.1,
               coolTime = 0.5;
         let startTime = 0,
             endTime = 0,
-            nowIndex = 0;
-        const playing = () => {
+            nowIndex = 0,
+            intervalId = -1;
+        const playChordProgression = () => {
             const time = audioNode.ctx.currentTime - startTime;
-            if(time > endTime) {
-                cvWhiteEffect.clear();
-                cvBlackEffect.clear();
-                return update();
-            }
-            g_id = requestAnimationFrame(playing);
+            if(time > endTime) return stop();
             while(nowIndex < timeline.length){
                 const {key, chord, when, duration} = timeline[nowIndex],
                       _when = when - time;
