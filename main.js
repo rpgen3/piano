@@ -207,9 +207,10 @@
         return keys;
     })();
     const c3 = rpgen4.piano.note2index('C3');
-    let disabledChord = false;
+    let disabledChord = false,
+        g_id = -1;
     const update = () => {
-        requestAnimationFrame(update);
+        g_id = requestAnimationFrame(update);
         const isNormalPiano = selectMode();
         for(const [i, v] of pianoKeys.entries()) {
             const {x, w, h, isBlack, pressed, input} = v,
@@ -246,13 +247,16 @@
             playChord(key.chord + 3, rpgen4.chord[chord.chord]);
         }
     };
-    const playChord = (note, chord) => {
-        const root = rpgen4.piano.note2index(note),
-              a = chord.map(v => v + root).map(v => rpgen4.piano.note[v]);
-        for(const v of a) sf?.play({
+    const getNotesOfChord = (note, chord) => {
+        const root = rpgen4.piano.note2index(note);
+        return chord.map(v => v + root).map(v => rpgen4.piano.note[v]);
+    };
+    const playChord = (note, chord, param = {}) => {
+        for(const v of getNotesOfChord(note, chord)) sf?.play({
             ctx: audioNode.ctx,
             destination: audioNode.note,
-            note: v
+            note: v,
+            ...param
         });
     };
     Promise.all([
@@ -268,22 +272,22 @@
         selectMode.elm.trigger('change');
         update();
     });
-    (() => {
+    {
         const {html} = addHideArea('auto chord');
         const selectSample = rpgen3.addSelect(html, {
             label: 'sample chord'
         });
+        fetchList('https://rpgen3.github.io/piano/list/chordProgression.txt').then(v => {
+            selectSample.update([
+                [notSelected, notSelected],
+                ...v.map(v => {
+                    const a = v.split(' ');
+                    return [a.slice(0, -1).join(' '), a.slice(-1)[0]];
+                })
+            ], notSelected);
+        });
         selectSample.elm.on('change', () => {
-            const mode = selectMode();
-            for(const [i, v] of pianoKeys.entries()) {
-                const{x, w, h, isBlack, chord, note} = v,
-                      {ctx} = cvSymbol;
-                ctx.fillStyle = isBlack ? 'white' : 'black';
-                ctx.font = 'bold 20px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'bottom';
-                ctx.fillText(mode ? note : chord, x + w / 2, ...[h, w].map(v => v - 10));
-            }
+            inputChord(selectSample());
         });
         const inputChord = rpgen3.addInputStr(html, {
             label: 'input chord',
@@ -298,9 +302,72 @@
             min: 40,
             max: 400
         });
-        $('<dd>').appendTo(html);
-        rpgen3.addBtn(html, 'play', () => {
-            // coding now...
+        const parseChord = () => {
+            const str = inputChord(),
+                  secCrotchet = 60 / inputBPM(),
+                  secBar = secCrotchet * 4;
+            while(timeline.length) timeline.pop();
+            {key, chord, when, duration}
+        };
+        rpgen3.addBtn(html, 'stop', () => {
+            cancelAnimationFrame(g_id);
+            update();
         }).addClass('btn');
-    })();
+        rpgen3.addBtn(html, 'play', () => {
+            cancelAnimationFrame(g_id);
+            parseChord();
+            startTime = audioNode.ctx.currentTime - timeline[0].when + coolTime;
+            playing();
+        }).addClass('btn');
+        const timeline = [],
+              planTime = 0.1,
+              coolTime = 0.5;
+        let startTime = 0,
+            endTime = 0,
+            nowIndex = 0;
+        const playing = () => {
+            const time = audioNode.ctx.currentTime - startTime;
+            if(time > endTime) {
+                /*record.close();
+                return stopMidi();*/
+                return update();
+            }
+            g_id = requestAnimationFrame(playing);
+            while(nowIndex < timeline.length){
+                const {key, chord, when, duration} = timeline[nowIndex],
+                      _when = when - time;
+                if(_when > planTime) break;
+                nowIndex++;
+                if(_when < 0) continue;
+                const _key = key + 3,
+                      _chord = rpgen4.chord[chord];
+                playChord(_key, _chord, {
+                    when: _when,
+                    duration
+                });
+                cvWhiteEffect.clear();
+                cvBlackEffect.clear();
+                if(selectMode()) {
+                    for(const v of getNotesOfChord(_key, _chord)) {
+                        const _v = pianoKeys.find(v => v.note === key);
+                        const {x, w, h, isBlack} = _v,
+                              {ctx} = isBlack ? cvBlackEffect : cvWhiteEffect;
+                        ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+                        ctx.fillRect(x, 0, w, h);
+                    }
+                }
+                else {
+                    const _key = pianoKeys.slice(0, 12).find(v => v.chord === key),
+                          _chord = pianoKeys.slice(12).find(v => v.chord === chord);
+                    for(const v of [_key, _chord]) {
+                        if(!v) continue;
+                        const {x, w, h, isBlack} = v,
+                              {ctx} = isBlack ? cvBlackEffect : cvWhiteEffect;
+                        ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+                        ctx.fillRect(x, 0, w, h);
+                    }
+                }
+            }
+        };
+    }
 })();
