@@ -306,13 +306,14 @@
             while(timeline.length) timeline.pop();
             const secBar = 60 / inputBPM() * 4,
                   frontChars = new Set('ABCDEFG=');
-            for(const [i, str] of inputChord().split('|').entries()) {
+            for(const [i, str] of inputChord().split(/[\|\n→]/).entries()) {
                 const when = i * secBar,
                       a = [];
                 let flag = false;
                 for(let i = 0; i < str.length; i++) {
                     const char = str[i];
                     if(!frontChars.has(char)) continue;
+                    else if(str[i - 1] === '/') continue;
                     if(!flag) {
                         if(char === '=') continue;
                         else flag = true;
@@ -324,6 +325,7 @@
                 let last = null;
                 for(const [i, v] of a.entries()) {
                     const s = str.slice(v, i === a.length - 1 ? str.length : a[i + 1]).replace(/\s+/g,'');
+                    console.log(s);
                     if(s[0] === '=') last.duration += unitTime;
                     else {
                         const key = s.slice(0, s[1] === '#' ? 2 : 1),
