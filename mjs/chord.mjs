@@ -7,7 +7,15 @@ export const chord = new class {
         this.dim = [0, 3, 6];
         this.pitch = new Map([...'CDEFGAB'].map((v, i) => [v, this.white[i]]));
     }
-    clean(output){
+    within(output){
+        for(const v of output) {
+            if(v >= 0 && v <= 11) continue;
+            output.delete(v);
+            output.add(v % 12 + (v < 0 ? 12 : 0));
+        }
+        return output;
+    }
+    discord(output){
         let i = -Infinity;
         for(const v of [...output].sort((a, b) => a - b)) {
             if(i - v === -1) output.delete(v);
