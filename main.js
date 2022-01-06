@@ -243,7 +243,7 @@
         else {
             if(isUnfulled) return;
             disabledChord = true;
-            playChord(key.chord, chord.chord);
+            playChord(`${key.chord}3`, chord.chord);
         }
     };
     const getNotesOfChord = (note, chord) => {
@@ -251,7 +251,7 @@
         return chord.map(v => v + root).map(v => rpgen4.piano.note[v]);
     };
     const playChord = (note, chord, param = {}) => {
-        for(const v of getNotesOfChord(rpgen4.chord.parse(`${note}3${chord}`))) sf?.play({
+        for(const v of getNotesOfChord(rpgen4.chord.parse(`${note}${chord}`))) sf?.play({
             ctx: audioNode.ctx,
             destination: audioNode.note,
             note: v,
@@ -374,7 +374,7 @@
                 if(_when < 0) continue;
                 const _key = `${key}3`,
                       _chord = rpgen4.chord[chord];
-                playChord(key, _chord, {
+                playChord(_key, _chord, {
                     when: _when,
                     duration
                 });
