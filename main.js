@@ -293,12 +293,19 @@
             save: true
         });
         rpgen4.resize(inputChord.elm.on('keydown', e => e.stopPropagation()));
-        const inputBPM = rpgen3.addInputNum(html, {
+        const inputBPM = rpgen3.addSelect(html, {
             label: 'BPM',
             save: true,
             value: 135,
-            min: 40,
-            max: 400
+            list: [
+                60,
+                120,
+                130,
+                135,
+                140,
+                150,
+                160
+            ]
         });
         const parseChord = () => {
             while(timeline.length) timeline.pop();
