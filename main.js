@@ -369,7 +369,6 @@
                 if(_when > planTime) break;
                 nowIndex++;
                 if(_when < 0) continue;
-                const _key = `${key}3`;
                 const notes = playChord(key, chord, {
                     when: _when,
                     duration
