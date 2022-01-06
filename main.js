@@ -24,10 +24,10 @@
         [
             'LayeredCanvas',
             'keyboard',
-            'resize'
+            'resize',
+            'chord'
         ].map(v => `https://rpgen3.github.io/piano/mjs/${v}.mjs`),
         [
-            'chord',
             'inversion',
             'audioNode',
             'SoundFont_surikov',
@@ -243,7 +243,7 @@
         else {
             if(isUnfulled) return;
             disabledChord = true;
-            playChord(key.chord + 3, rpgen4.chord[chord.chord]);
+            playChord(key.chord, chord.chord);
         }
     };
     const getNotesOfChord = (note, chord) => {
@@ -251,7 +251,7 @@
         return chord.map(v => v + root).map(v => rpgen4.piano.note[v]);
     };
     const playChord = (note, chord, param = {}) => {
-        for(const v of getNotesOfChord(note, chord)) sf?.play({
+        for(const v of getNotesOfChord(rpgen4.chord.parse(`${note}3${chord}`))) sf?.play({
             ctx: audioNode.ctx,
             destination: audioNode.note,
             note: v,
@@ -372,9 +372,9 @@
                 if(_when > planTime) break;
                 nowIndex++;
                 if(_when < 0) continue;
-                const _key = key + 3,
+                const _key = `${key}3`,
                       _chord = rpgen4.chord[chord];
-                playChord(_key, _chord, {
+                playChord(key, _chord, {
                     when: _when,
                     duration
                 });
