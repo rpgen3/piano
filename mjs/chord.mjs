@@ -15,9 +15,6 @@ export const chord = new class {
         }
         return output;
     }
-    _parseSemitone(c){
-        return /[\+#]/.test(c) ? 1 : /[\-b♭]/.test(c) ? -1 : 0;
-    }
     parse(str){
         let i = 0,
             tmp = 0;
@@ -25,7 +22,8 @@ export const chord = new class {
             const pitch = str.slice(i)[0];
             if(!this.pitch.has(pitch)) return null;
             i++;
-            const k = this._parseSemitone(str.slice(i)[0]);
+            const c = str.slice(i)[0],
+                  k = /[#]/.test(c) ? 1 : /[b♭]/.test(c) ? -1 : 0;
             i += Math.abs(k);
             return this.pitch.get(pitch) + k;
         };
@@ -81,7 +79,8 @@ export const chord = new class {
         };
         const add = s => {
             let j = 0;
-            const k = this._parseSemitone(s.slice(j)[0]),
+            const c = s.slice(j)[0],
+                  k = /[#\+]/.test(c) ? 1 : /[b♭\-]/.test(c) ? -1 : 0,
                   m = s.slice(j += Math.abs(k)).match(/^[0-9]+/);
             if(m === null) return;
             i += j + m[0].length;
