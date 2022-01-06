@@ -323,7 +323,6 @@
                 let last = null;
                 for(const [i, v] of a.entries()) {
                     const s = str.slice(v, i === a.length - 1 ? str.length : a[i + 1]).replace(/\s+/g,'');
-                    console.log(s);
                     if(s[0] === '=') last.duration += unitTime;
                     else {
                         const key = s.slice(0, s[1] === '#' ? 2 : 1),
@@ -370,9 +369,8 @@
                 if(_when > planTime) break;
                 nowIndex++;
                 if(_when < 0) continue;
-                const _key = `${key}3`,
-                      _chord = rpgen4.chord[chord];
-                const notes = playChord(key, _chord, {
+                const _key = `${key}3`;
+                const notes = playChord(key, chord, {
                     when: _when,
                     duration
                 });
