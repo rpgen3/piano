@@ -243,20 +243,18 @@
         else {
             if(isUnfulled) return;
             disabledChord = true;
-            playChord(`${key.chord}3`, chord.chord);
+            playChord(key.chord, chord.chord);
         }
     };
-    const getNotesOfChord = (note, chord) => {
-        const root = rpgen4.piano.note2index(note);
-        return chord.map(v => v + root).map(v => rpgen4.piano.note[v]);
-    };
     const playChord = (note, chord, param = {}) => {
-        for(const v of getNotesOfChord(rpgen4.chord.parse(`${note}${chord}`))) sf?.play({
+        const notes = [...rpgen4.chord.parse(`${note}${chord}`)];
+        for(const v of notes) sf?.play({
             ctx: audioNode.ctx,
             destination: audioNode.note,
-            note: v,
+            note: rpgen4.piano.note[c3 + v],
             ...param
         });
+        return notes;
     };
     Promise.all([
         'chord',
@@ -266,7 +264,7 @@
         for(const [i, v] of a.entries()) pianoKeys[i + 12].chord = v;
         for(const [i, v] of b.entries()) {
             pianoKeys[i].input = v;
-            pianoKeys[i].note = rpgen4.piano.note[c3 + i];
+            pianoKeys[i].note = rpgen4.piano.note[i + c3];
         }
         selectMode.elm.trigger('change');
         update();
@@ -374,15 +372,17 @@
                 if(_when < 0) continue;
                 const _key = `${key}3`,
                       _chord = rpgen4.chord[chord];
-                playChord(_key, _chord, {
+                const notes = playChord(key, _chord, {
                     when: _when,
                     duration
                 });
                 cvWhiteEffect.clear();
                 cvBlackEffect.clear();
                 if(selectMode()) {
-                    for(const note of getNotesOfChord(_key, _chord)) {
-                        const _v = pianoKeys.find(v => v.note === note);
+                    for(const note of notes) {
+                        const _note = rpgen4.piano.note[note + c3],
+                              _v = pianoKeys.find(v => v.note === _note);
+                        if(!_v) continue;
                         const {x, w, h, isBlack} = _v,
                               {ctx} = isBlack ? cvBlackEffect : cvWhiteEffect;
                         ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
