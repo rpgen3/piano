@@ -157,6 +157,7 @@
           cvBlack = new LayeredCanvas(),
           cvBlackEffect = new LayeredCanvas(),
           cvSymbol = new LayeredCanvas();
+    $('canvas').css('max-width', '100%');
     const pianoKeys = (() => {
         class Key {
             constructor(x, w, h, isBlack){
