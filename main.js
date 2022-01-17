@@ -275,13 +275,16 @@
             label: 'sample chord'
         });
         fetchList('https://rpgen3.github.io/piano/list/chordProgression.txt').then(v => {
-            selectSample.update([
-                [notSelected, notSelected],
-                ...v.map(v => {
-                    const a = v.split(' ');
-                    return [a.slice(0, -1).join(' '), a.slice(-1)[0]];
-                })
-            ], notSelected);
+            const list = [[notSelected, notSelected]];
+            for(const line of v) {
+                const idx = line.indexOf(':');
+                if(idx === -1) list[list.length - 1][1] += '\n' + line.trim();
+                else list.push([
+                    line.slice(0, idx),
+                    line.slice(idx + 1)
+                ].map(v => v.trim()));
+            }
+            selectSample.update(list, notSelected);
         });
         selectSample.elm.on('change', () => {
             const v = selectSample();
@@ -310,7 +313,7 @@
         const parseChord = () => {
             while(timeline.length) timeline.pop();
             const secBar = 60 / inputBPM() * 4,
-                  frontChars = new Set('ABCDEFG=');
+                  frontChars = new Set('ABCDEFG=%');
             for(const [i, str] of inputChord().split(/[\|\n→]/).entries()) {
                 const when = i * secBar,
                       a = [];
@@ -320,7 +323,7 @@
                     if(!frontChars.has(char)) continue;
                     else if(str[i - 1] === '/') continue;
                     if(!flag) {
-                        if(char === '=') continue;
+                        if(char === '=' || char === '%') continue;
                         else flag = true;
                     }
                     a.push(i);
@@ -330,18 +333,23 @@
                 let last = null;
                 for(const [i, v] of a.entries()) {
                     const s = str.slice(v, i === a.length - 1 ? str.length : a[i + 1]).replace(/\s+/g,'');
-                    if(s[0] === '=') last.duration += unitTime;
+                    if(s[0] === '=') continue;
+                    const _when = when + i * unitTime;
+                    if(s[0] === '%') {
+                        last = {...last};
+                        last.when = _when;
+                    }
                     else {
                         const key = s.slice(0, s[1] === '#' ? 2 : 1),
                               chord = s.slice(key.length).replaceAll(/[\s・]/g, '');
                         last = {
                             key,
                             chord,
-                            when: when + i * unitTime,
+                            when: _when,
                             duration: unitTime
                         };
-                        timeline.push(last);
                     }
+                    timeline.push(last);
                 }
             }
             const last = timeline[timeline.length - 1];
