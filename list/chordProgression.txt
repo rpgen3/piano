@@ -1,5 +1,13 @@
-王道進行 F|G|Em|Am
-小室進行 Am|F|G|C
-POP PUNK進行 F|C|G|Am
-カノン進行 C|G|Am|Em|F|C|F|G
-Let it be進行 C|G|Am|F
+王道進行: F|G|Em|Am
+
+小室進行: Am|F|G|C
+
+POP PUNK進行: F|C|G|Am
+
+カノン進行: C|G|Am|Em|F|C|F|G
+
+Let it be進行: C|G|Am|F
+
+最高にxx界隈っぽいコード進行:
+F#M7→F7→A#m/F→C#7
+F#M7→F7・E7→F#add9/D#・G#/F#→G#sus4/F・F(+9)
