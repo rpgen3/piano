@@ -32,7 +32,7 @@
             'audioNode',
             'SoundFont_surikov',
             'SoundFont_surikov_list'
-        ].map(v => `https://rpgen3.github.io/chord/mjs/${v}.mjs`)
+        ].map(v => `https://rpgen3.github.io/soundfont/mjs/${v}.mjs`)
     ].flat());
     const {
         LayeredCanvas,
@@ -42,7 +42,8 @@
     } = rpgen4;
     [
         'container',
-        'btn'
+        'btn',
+        'img'
     ].map(v => `https://rpgen3.github.io/spatialFilter/css/${v}.css`).map(rpgen3.addCSS);
     const fetchList = async url => {
         const res = await fetch(url),
@@ -85,7 +86,7 @@
             const font = selectFont();
             if(font === notSelected) return;
             const map = new Map((
-                await fetchList('https://rpgen3.github.io/chord/list/fontName_surikov.txt')
+                await fetchList('https://rpgen3.github.io/soundfont/list/fontName_surikov.txt')
             ).map(v => {
                 const a = v.split(' ');
                 return [a[0].slice(0, 3), a.slice(1).join(' ')];
@@ -157,7 +158,6 @@
           cvBlack = new LayeredCanvas(),
           cvBlackEffect = new LayeredCanvas(),
           cvSymbol = new LayeredCanvas();
-    $('canvas').css('max-width', '100%');
     const pianoKeys = (() => {
         class Key {
             constructor(x, w, h, isBlack){
@@ -279,7 +279,10 @@
             const list = [[notSelected, notSelected]];
             for(const line of v) {
                 const idx = line.indexOf(':');
-                if(idx === -1) list[list.length - 1][1] += '\n' + line.trim();
+                if(idx === -1) {
+                    const s = line.trim();
+                    if(s.length) list[list.length - 1][1] += '\n' + s;
+                }
                 else list.push([
                     line.slice(0, idx),
                     line.slice(idx + 1)
