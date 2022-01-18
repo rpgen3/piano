@@ -17,7 +17,8 @@
         'random',
         'input',
         'css',
-        'util'
+        'util',
+        'hankaku'
     ].map(v => `https://rpgen3.github.io/mylib/export/${v}.mjs`));
     const rpgen4 = await importAll([
         'https://rpgen3.github.io/midi/mjs/piano.mjs',
@@ -321,7 +322,7 @@
             const secBar = 60 / inputBPM() * 4,
                   frontChars = new Set('ABCDEFG=_%');
             let idx = 0;
-            for(const line of inputChord().split('\n').map(v => v.trim())) {
+            for(const line of rpgen3.toHan(inputChord()).split('\n').map(v => v.trim())) {
                 if(!line.length || /^#/.test(line)) continue;
                 for(const str of line.split(/[\|→]/)) {
                     if(!str.length) continue;
