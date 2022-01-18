@@ -52,6 +52,7 @@ class Parser {
     constructor(){
         this.map = new Map;
         this.len = new Set;
+        this.sorted = null;
     }
     _set(key, value){
         this.map.set(key, value);
@@ -60,10 +61,14 @@ class Parser {
     set(key, value){
         if(Array.isArray(key)) for(const k of key) this._set(k, value);
         else this._set(key, value);
+        this._sort();
+    }
+    _sort(){
+        this.sorted = [...this.len].sort((a, b) => b - a);
     }
     parse(input){
-        const {map, len} = this;
-        for(const i of len) {
+        const {map, sorted} = this;
+        for(const i of sorted) {
             const s = input.slice(i);
             if(map.has(s)) {
                 input.idx += i;
@@ -75,6 +80,9 @@ class Parser {
 };
 // parser
 export const parse = str => parseFormula(new Input(str));
+const err = (input, msg) => {
+    throw Error(`SyntaxError: ${[msg, ...['idx','str'].map(v => `input.${v}: ${input[v]}`)].join('\n')}`);
+};
 const parseFormula = (() => {
     const p = new Parser;
     p.set('(', 0); // magic number
@@ -88,7 +96,7 @@ const parseFormula = (() => {
         };
         while(true) {
             if(input.isEOF) {
-                if(nest) throw `SyntaxError: Unclosed ${nest} brackets`;
+                if(nest) err(input, `Unclosed ${nest} brackets`);
                 _eval();
                 return output;
             }
@@ -100,7 +108,7 @@ const parseFormula = (() => {
             _eval(-1);
             if(res === 0) parseFormula(input, output, nest + 1);
             else if(res === 1) {
-                if(nest - 1 < 0) throw `SyntaxError: Unable to close brackets`;
+                if(nest - 1 < 0) err(input, 'Unable to close brackets');
                 return output;
             }
             else if(res === 2) {
@@ -145,12 +153,12 @@ const parsePitch = (() => {
 const parseBasic = (() => {
     const p = new Parser,
           major = [0, 4, 7];
-    p.set(['m', 'minor', 'Minor', '-'], [0, 3, 7]);
-    p.set(['dim', '〇'], [0, 3, 6]);
+    p.set(['m', 'min', 'Min', 'minor', 'Minor', '-'], [0, 3, 7]);
+    p.set(['dim', 'o', '〇'], [0, 3, 6]);
     p.set('dim7', [0, 3, 6, 9]);
     p.set(['aug', '+'], [0, 4, 8]);
     p.set('alt', [0, 4, 6]);
-    p.set(['φ', 'Φ'], [0, 3, 6, 10]);
+    p.set(['Φ', 'φ', 'ø'], [0, 3, 6, 10]);
     return (input, output) => {
         const res = p.parse(input);
         if(res !== null) output.isChord = true;
@@ -163,7 +171,7 @@ const parseChord = (() => {
     p.set('add', (chord, n, semitone) => {
         chord.add(deg2pitch(n) + semitone);
     });
-    p.set('omit', (chord, n, semitone) => {
+    p.set(['omit', 'no'], (chord, n, semitone) => {
         chord.delete(deg2pitch(n) + semitone);
     });
     p.set('sus', (chord, n, semitone) => {
@@ -181,7 +189,7 @@ const parseChord = (() => {
             if(n >= 13) chord.add(deg2pitch(13));
         }
     };
-    p.set(['M', 'major', 'Major', '△'], _7th);
+    p.set(['M', 'maj', 'Maj', 'major', 'Major', '△', 'Δ'], _7th);
     const _semitone = (chord, n, semitone) => {
         chord.delete(deg2pitch(n));
         chord.add(deg2pitch(n) + semitone);
@@ -195,9 +203,9 @@ const parseChord = (() => {
               {chord} = output;
         if(output.pending !== null) output.pending = null;
         if(num === null) {
-            if(!input.isEOF) throw 'SyntaxError: Unresolved operator of chord';
+            if(!input.isEOF) err(input, 'Unresolved operator of chord');
             if(func === null) {
-                if(semitone === null) throw 'SyntaxError: Unexpected operator of chord';
+                if(semitone === null) err(input, 'Unexpected operator of chord');
                 else output.pending = (output, n) => _semitone(chord, n, semitone);
             }
             else output.pending = func;
