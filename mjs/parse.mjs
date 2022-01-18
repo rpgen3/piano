@@ -1,3 +1,4 @@
+import {SortedSet} from 'https://rpgen3.github.io/piano/mjs/SortedSet.mjs';
 // [degree - 1] to [pitch class]
 const idx2pitch = [0, 2, 4, 5, 7, 9, 11];
 for(const i of [...idx2pitch.keys()]) idx2pitch.push(idx2pitch[i] + 12);
@@ -51,8 +52,7 @@ class Output {
 class Parser {
     constructor(){
         this.map = new Map;
-        this.len = new Set;
-        this.sorted = null;
+        this.len = new SortedSet(true);
     }
     _set(key, value){
         this.map.set(key, value);
@@ -61,14 +61,10 @@ class Parser {
     set(key, value){
         if(Array.isArray(key)) for(const k of key) this._set(k, value);
         else this._set(key, value);
-        this._sort();
-    }
-    _sort(){
-        this.sorted = [...this.len].sort((a, b) => b - a);
     }
     parse(input){
-        const {map, sorted} = this;
-        for(const i of sorted) {
+        const {map, len} = this;
+        for(const i of len) {
             const s = input.slice(i);
             if(map.has(s)) {
                 input.idx += i;
