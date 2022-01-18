@@ -319,7 +319,7 @@
         const parseChord = () => {
             while(timeline.length) timeline.pop();
             const secBar = 60 / inputBPM() * 4,
-                  frontChars = new Set('ABCDEFG=%');
+                  frontChars = new Set('ABCDEFG=_%');
             let idx = 0;
             for(const line of inputChord().split('\n').map(v => v.trim())) {
                 if(!line.length || /^#/.test(line)) continue;
@@ -333,7 +333,7 @@
                         if(!frontChars.has(char)) continue;
                         else if(str[i - 1] === '/') continue;
                         if(!flag) {
-                            if(char === '=' || char === '%') continue;
+                            if(char === '=' || char === '_' || char === '%') continue;
                             else flag = true;
                         }
                         a.push(i);
@@ -343,7 +343,7 @@
                     let last = null;
                     for(const [i, v] of a.entries()) {
                         const s = str.slice(v, i === a.length - 1 ? str.length : a[i + 1]).replace(/\s+/g,'');
-                        if(s[0] === '=') continue;
+                        if(s[0] === '=' || s[0] === '_') continue;
                         const _when = when + i * unitTime;
                         if(s[0] === '%') {
                             last = {...last};
