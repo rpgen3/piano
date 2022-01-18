@@ -150,7 +150,7 @@ const parseBasic = (() => {
     p.set('dim7', [0, 3, 6, 9]);
     p.set(['aug', '+'], [0, 4, 8]);
     p.set('alt', [0, 4, 6]);
-    p.set('φ', [0, 3, 6, 10]);
+    p.set(['φ', 'Φ'], [0, 3, 6, 10]);
     return (input, output) => {
         const res = p.parse(input);
         if(res !== null) output.isChord = true;
