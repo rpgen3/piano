@@ -123,7 +123,7 @@ const parseSemitone = (() => {
     const p = new Parser,
           _p = new Parser;
     for(const v of [p, _p]) {
-        v.set('#', 1);
+        v.set(['#', '♯'], 1);
         v.set(['b', '♭'], -1);
     }
     _p.set('+', 1);
