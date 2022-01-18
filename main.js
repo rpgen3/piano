@@ -288,11 +288,13 @@
                     line.slice(idx + 1)
                 ].map(v => v.trim()));
             }
-            selectSample.update(list, notSelected);
+            selectSample.update(list.map(v => v.map(v => v.trim())), notSelected);
         });
         selectSample.elm.on('change', () => {
             const v = selectSample();
-            if(v !== notSelected) inputChord(v);
+            if(v === notSelected) return;
+            inputChord(v);
+            inputChord.elm.trigger('change');
         });
         const inputChord = rpgen3.addInputStr(html, {
             label: 'input chord',
