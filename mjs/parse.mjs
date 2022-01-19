@@ -83,7 +83,7 @@ const parseFormula = (() => {
     const p = new Parser;
     p.set('(', 0); // magic number
     p.set(')', 1);
-    p.set('/', 2);
+    p.set(['/', 'on'], 2);
     return (input, output = new Output, nest = 0) => {
         let start = input.idx;
         const _eval = (offset = 0) => {
