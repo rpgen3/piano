@@ -67,7 +67,7 @@ class Parser {
         for(const i of len) {
             const s = input.slice(i);
             if(map.has(s)) {
-                input.idx += i;
+                input.idx += s.length;
                 return map.get(s);
             }
         }
