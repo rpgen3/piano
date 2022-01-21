@@ -32,7 +32,9 @@
             'inversion',
             'audioNode',
             'SoundFont_surikov',
-            'SoundFont_surikov_list'
+            'SoundFont_surikov_list',
+            'RecordWorklet',
+            'toWAV'
         ].map(v => `https://rpgen3.github.io/soundfont/mjs/${v}.mjs`)
     ].flat());
     const {
@@ -433,5 +435,51 @@
                 }
             }
         };
+    }
+    const record = {};
+    {
+        const {html} = addHideArea('record play');
+        const inputCh = rpgen3.addSelect(html, {
+            label: 'channel',
+            save: true,
+            list: {
+                'auto': 0,
+                'monaural': 1,
+                'stereo': 2
+            }
+        });
+        const inputBitRate = rpgen3.addSelect(html, {
+            label: 'bitRate',
+            save: true,
+            list: [8, 16, 24, 32],
+            value: 16
+        });
+        let rec = null;
+        rpgen3.addBtn(html, 'download', async () => {
+            rpgen3.download(rpgen4.toWAV({
+                data: await rec.data,
+                sampleRate: audioNode.ctx.sampleRate,
+                bitRate: inputBitRate()
+            }), 'piano.wav');
+        }).addClass('btn');
+        const isRecord = rpgen3.addInputBool(html, {
+            label: 'start record'
+        });
+        const init = async () => {
+            if(!isRecord()) return true;
+            const {ctx} = audioNode,
+                  p = {ctx, ch: inputCh() ? inputCh() : SoundFont.ch};
+            await rpgen4.RecordWorklet.init(ctx);
+            rec = new rpgen4.RecordWorklet(p);
+            audioNode.connect(rec.node);
+        };
+        const close = () => rec?.close();
+        Object.assign(record, {init, close});
+        isRecord.elm.on('change', async () => {
+            if(await init()) {
+                close();
+                audioNode.connect();
+            }
+        });
     }
 })();
