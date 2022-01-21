@@ -380,10 +380,12 @@
             clearInterval(intervalId);
             cvWhiteEffect.clear();
             cvBlackEffect.clear();
+            record.close();
         };
         rpgen3.addBtn(html, 'stop', stop).addClass('btn');
-        rpgen3.addBtn(html, 'play', () => {
+        rpgen3.addBtn(html, 'play', async () => {
             stop();
+            await record.init();
             parseChord();
             startTime = audioNode.ctx.currentTime - timeline[0].when + coolTime;
             nowIndex = 0;
