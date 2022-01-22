@@ -228,7 +228,7 @@ const parsePending = () => {
           {num} = input;
     output.pending = null;
     if(num === null) err(input, 'Not found number');
-    if(half === null) func(chord, num);
+    else if(half === null) func(chord, num);
     else func(chord, num, half);
     return parseChord(input, output);
 };
