@@ -136,9 +136,9 @@ const parseHalf = (() => {
 })();
 const parseChord = (input, output) => {
     if(input.isEOF) return output;
-    else if(output.pitch === null) parsePitch(input, output);
-    else if(output.pending === null) parseFunc(input, output);
-    else parsePending(input, output);
+    else if(output.pitch === null) return parsePitch(input, output);
+    else if(output.pending === null) return parseFunc(input, output);
+    else return parsePending(input, output);
 };
 const parsePitch = (() => {
     const p = new Parser;
