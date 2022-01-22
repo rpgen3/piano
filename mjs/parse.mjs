@@ -210,9 +210,13 @@ const parseFunc = (() => {
         const func = p.parse(input),
               {chord} = output;
         if(func === null) {
-            const half = parseHalf(input),
+            const isAug = input.char === '+',
+                  half = parseHalf(input),
                   {num} = input;
-            if(num === null) err(input, 'Not found number');
+            if(num === null) {
+                if(isAug) aug(chord);
+                else err(input, 'Not found number');
+            }
             if(half === null) _7th(chord, num, half, true);
             else _half(chord, num, half);
         }
@@ -222,13 +226,11 @@ const parseFunc = (() => {
     };
 })();
 const parsePending = (input, output) => {
-    const {pending, chord} = output,
-          {func} = pending,
-          half = parseHalf(input),
-          {num} = input;
-    output.pending = null;
+    const half = parseHalf(input),
+          {num} = input,
+          {pending, chord} = output;
     if(num === null) err(input, 'Not found number');
-    else if(half === null) func(chord, num);
-    else func(chord, num, half);
+    pending(chord, num, half === null ? 0 : half);
+    output.pending = null;
     return parseChord(input, output);
 };
