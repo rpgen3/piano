@@ -88,7 +88,7 @@ const parseFormula = (() => {
         let start = input.idx;
         const _eval = (offset = 0) => {
             const str = input.str.slice(start, input.idx + offset);
-            if(str.length) (output.pitch === null ? parsePitch : parseChord)(new Input(str), output);
+            if(str.length) parseChord(new Input(str), output);
         };
         while(true) {
             if(input.isEOF) {
@@ -123,7 +123,7 @@ const parseFormula = (() => {
         }
     };
 })();
-const parseSemitone = (() => {
+const parseHalf = (() => {
     const p = new Parser,
           _p = new Parser;
     for(const v of [p, _p]) {
@@ -132,49 +132,59 @@ const parseSemitone = (() => {
     }
     _p.set('+', 1);
     _p.set('-', -1);
-    return (input, isAll = false) => (isAll ? _p : p).parse(input);
+    return (input, isPitch = false) => (isPitch ? p : _p).parse(input);
 })();
+const parseChord = (input, output) => {
+    if(input.isEOF) return output;
+    else if(output.pitch === null) parsePitch(input, output);
+    else if(output.pending === null) parseFunc(input, output);
+    else parsePending(input, output);
+};
 const parsePitch = (() => {
     const p = new Parser;
     for(const [i, v] of [...'CDEFGAB'].entries()) p.set(v, idx2pitch[i]);
     return (input, output = new Output) => {
         const pitch = p.parse(input);
-        if(pitch === null) return parseChord(input, output);
+        if(pitch === null) err(input, 'Not fond pitch');
         output.pitch = pitch;
-        const semitone = parseSemitone(input, false);
-        if(semitone !== null) output.pitch += semitone;
+        const half = parseHalf(input, true);
+        if(half !== null) output.pitch += half;
         return parseBasic(input, output);
     };
 })();
 const parseBasic = (() => {
     const p = new Parser,
-          major = [0, 4, 7];
+          major = [0, 4, 7],
+          dim = [0, 3, 6];
     p.set(['m', 'min', 'Min', 'minor', 'Minor', '-'], [0, 3, 7]);
     p.set(['dim', 'o', '〇'], [0, 3, 6]);
-    p.set(['dim7', 'o7', '〇7'], [0, 3, 6, 9]);
-    p.set(['aug', '+'], [0, 4, 8]);
-    p.set('alt', [0, 4, 6]);
+    p.set('+', [0, 4, 8]); // aug
     p.set(['Φ', 'φ', 'ø'], [0, 3, 6, 10]);
     return (input, output) => {
         const res = p.parse(input);
         if(res !== null) output.isChord = true;
         output.chord = new Set(res || major);
-        return parseChord(input, output);
+        if(res === dim) {
+            const {num} = input,
+                  {chord} = output;
+            chord.add(deg2pitch(n) - 2);
+        }
+        return parseFunc(input, output);
     };
 })();
-const parseChord = (() => {
+const parseFunc = (() => {
     const p = new Parser;
-    p.set('add', (chord, n, semitone) => {
-        chord.add(deg2pitch(n) + semitone);
+    p.set('add', (chord, n, half) => {
+        chord.add(deg2pitch(n) + half);
     });
-    p.set(['omit', 'no'], (chord, n, semitone) => {
-        chord.delete(deg2pitch(n) + semitone);
+    p.set(['omit', 'no'], (chord, n, half) => {
+        chord.delete(deg2pitch(n) + half);
     });
-    p.set('sus', (chord, n, semitone) => {
+    p.set('sus', (chord, n, half) => {
         chord.delete(deg2pitch(3));
-        chord.add(deg2pitch(n) + semitone);
+        chord.add(deg2pitch(n) + half);
     });
-    const _7th = (chord, n, semitone, isFlat = false) => { // C7, CM7
+    const _7th = (chord, n, half, isFlat = false) => { // C7, CM7
         if(n === 5) chord.delete(deg2pitch(3));
         else if(n === 6) chord.add(deg2pitch(6));
         else if(n === 69) chord.add(deg2pitch(6)).add(deg2pitch(9));
@@ -186,33 +196,39 @@ const parseChord = (() => {
         }
     };
     p.set(['M', 'maj', 'Maj', 'major', 'Major', '△', 'Δ'], _7th);
-    const _semitone = (chord, n, semitone) => {
+    const _half = (chord, n, half) => {
         chord.delete(deg2pitch(n));
-        chord.add(deg2pitch(n) + semitone);
+        chord.add(deg2pitch(n) + half);
     };
+    const aug = chord => {
+        chord.delete(deg2pitch(5));
+        chord.add(deg2pitch(5) + 1);
+    };
+    p.set('aug', aug);
     return (input, output) => {
-        if(input.isEOF) return output;
         if(!output.isChord) output.isChord = true;
-        const func = output.pending || p.parse(input),
-              semitone = parseSemitone(input, true),
-              {num} = input,
+        const func = p.parse(input),
               {chord} = output;
-        if(output.pending !== null) output.pending = null;
-        if(num === null) {
-            if(!input.isEOF) err(input, 'Unresolved operator of chord');
-            if(func === null) {
-                if(semitone === null) err(input, 'Unexpected operator of chord');
-                else output.pending = (output, n) => _semitone(chord, n, semitone);
-            }
-            else output.pending = func;
+        if(func === null) {
+            const half = parseHalf(input),
+                  {num} = input;
+            if(num === null) err(input, 'Not found number');
+            if(half === null) _7th(chord, num, half, true);
+            else _half(chord, num, half);
         }
-        else {
-            if(func === null) {
-                if(semitone === null) _7th(chord, num, semitone, true);
-                else _semitone(chord, num, semitone);
-            }
-            else func(chord, num, semitone);
-        }
+        else if(func === aug) aug(chord);
+        else output.pending = func;
         return parseChord(input, output);
     };
 })();
+const parsePending = () => {
+    const {pending, chord} = output,
+          {func} = pending,
+          half = parseHalf(input),
+          {num} = input;
+    output.pending = null;
+    if(num === null) err(input, 'Not found number');
+    if(half === null) func(chord, num);
+    else func(chord, num, half);
+    return parseChord(input, output);
+};
