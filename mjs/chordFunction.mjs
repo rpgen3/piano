@@ -21,7 +21,7 @@ const list = {
 };
 const _parse = str => ({
     name: str,
-    value: parse(keys[m.get(str[0])] + str.slice(1))
+    value: parse(keys[m.get(str[0])] + str.slice(1)).value
 });
 for(const k in list) {
     const a = list[k];
