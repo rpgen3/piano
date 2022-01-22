@@ -169,7 +169,7 @@ const parseBasic = (() => {
                   {chord} = output;
             chord.add(deg2pitch(n) - 2);
         }
-        return parseFunc(input, output);
+        return parseChord(input, output);
     };
 })();
 const parseFunc = (() => {
@@ -221,7 +221,7 @@ const parseFunc = (() => {
         return parseChord(input, output);
     };
 })();
-const parsePending = () => {
+const parsePending = (input, output) => {
     const {pending, chord} = output,
           {func} = pending,
           half = parseHalf(input),
