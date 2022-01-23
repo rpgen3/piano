@@ -26,7 +26,7 @@
             'LayeredCanvas',
             'keyboard',
             'resize',
-            'parse'
+            'parseChord'
         ].map(v => `https://rpgen3.github.io/piano/mjs/${v}.mjs`),
         [
             'inversion',
@@ -251,7 +251,7 @@
         }
     };
     const playChord = (note, chord, param = {}) => {
-        const notes = [...rpgen4.parse(`${note}${chord}`).value];
+        const notes = [...rpgen4.parseChord(`${note}${chord}`).value];
         for(const v of notes) sf?.play({
             ctx: audioNode.ctx,
             destination: audioNode.note,
