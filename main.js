@@ -333,9 +333,10 @@
                     let flag = false;
                     for(let i = 0; i < str.length; i++) {
                         const char = str[i],
-                              prev = str[i - 1];
+                              prev = str[i - 1],
+                              prev2 = str.slice(i - 2, i);
                         if(!frontChars.has(char)) continue;
-                        else if(prev === '/') continue;
+                        else if(prev === '/' || prev2 === 'on') continue;
                         else if(prev === '.' && char === 'C') continue;
                         if(!flag) {
                             if(char === '_' || char === '=' || char === '%') continue;
