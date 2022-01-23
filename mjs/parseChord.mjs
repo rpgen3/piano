@@ -1,9 +1,7 @@
 import {SortedSet} from 'https://rpgen3.github.io/piano/mjs/SortedSet.mjs';
-// [degree - 1] to [pitch class]
-const idx2pitch = [0, 2, 4, 5, 7, 9, 11];
-for(const i of [...idx2pitch.keys()]) idx2pitch.push(idx2pitch[i] + 12);
-// [degree] to [pitch class]
-const deg2pitch = deg => idx2pitch[deg - 1];
+const err = (input, msg) => {
+    throw Error(`SyntaxError: ${[msg, ...['idx', 'str'].map(v => `input.${v}: ${input[v]}`)].join('\n')}`);
+};
 class Input {
     static nums = new Set('0123456789');
     constructor(str){
@@ -75,10 +73,7 @@ class Parser {
     }
 };
 // parser
-export const parse = str => parseFormula(new Input(str));
-const err = (input, msg) => {
-    throw Error(`SyntaxError: ${[msg, ...['idx','str'].map(v => `input.${v}: ${input[v]}`)].join('\n')}`);
-};
+export const parseChord = str => parseFormula(new Input(str));
 const parseFormula = (() => {
     const p = new Parser;
     p.set('(', 0); // magic number
@@ -88,7 +83,7 @@ const parseFormula = (() => {
         let start = input.idx;
         const _eval = (offset = 0) => {
             const str = input.str.slice(start, input.idx + offset);
-            if(str.length) parseChord(new Input(str), output);
+            if(str.length) parseTerm(new Input(str), output);
         };
         while(true) {
             if(input.isEOF) {
@@ -123,6 +118,12 @@ const parseFormula = (() => {
         }
     };
 })();
+const parseTerm = (input, output) => {
+    if(input.isEOF) return output;
+    else if(output.pitch === null) return parsePitch(input, output);
+    else if(output.pending === null) return parseFunc(input, output);
+    else return parsePending(input, output);
+};
 const parseHalf = (() => {
     const p = new Parser,
           _p = new Parser;
@@ -134,12 +135,9 @@ const parseHalf = (() => {
     _p.set('-', -1);
     return (input, isPitch = false) => (isPitch ? p : _p).parse(input);
 })();
-const parseChord = (input, output) => {
-    if(input.isEOF) return output;
-    else if(output.pitch === null) return parsePitch(input, output);
-    else if(output.pending === null) return parseFunc(input, output);
-    else return parsePending(input, output);
-};
+const idx2pitch = [0, 2, 4, 5, 7, 9, 11]; // [degree - 1] to [pitch class]
+for(const i of [...idx2pitch.keys()]) idx2pitch.push(idx2pitch[i] + 12);
+const deg2pitch = deg => idx2pitch[deg - 1]; // [degree] to [pitch class]
 const parsePitch = (() => {
     const p = new Parser;
     for(const [i, v] of [...'CDEFGAB'].entries()) p.set(v, idx2pitch[i]);
@@ -169,7 +167,7 @@ const parseBasic = (() => {
                   {chord} = output;
             chord.add(deg2pitch(n) - 2);
         }
-        return parseChord(input, output);
+        return parseTerm(input, output);
     };
 })();
 const parseFunc = (() => {
@@ -222,7 +220,7 @@ const parseFunc = (() => {
         }
         else if(func === aug) aug(chord);
         else output.pending = func;
-        return parseChord(input, output);
+        return parseTerm(input, output);
     };
 })();
 const parsePending = (input, output) => {
@@ -232,5 +230,5 @@ const parsePending = (input, output) => {
     if(num === null) err(input, 'Not found number');
     pending(chord, num, half === null ? 0 : half);
     output.pending = null;
-    return parseChord(input, output);
+    return parseTerm(input, output);
 };
