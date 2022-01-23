@@ -1,4 +1,4 @@
-import {parse} from 'https://rpgen3.github.io/piano/mjs/parse.mjs';
+import {parseChord} from 'https://rpgen3.github.io/piano/mjs/parseChord.mjs';
 const keys = 'CDEFGAB',
       m = new Map([...'ⅠⅡⅢⅣⅤⅥⅦ'].map((v, i) => [v, i])),
       _3m7 = 'Ⅲm7',
@@ -19,10 +19,14 @@ const list = {
         _6m7
     ]
 };
-const _parse = str => ({
-    name: str,
-    value: parse(keys[m.get(str[0])] + str.slice(1)).value
-});
+const _parse = str => {
+    const _str = keys[m.get(str[0])] + str.slice(1);
+    return {
+        name: str,
+        parsedName: _str,
+        value: parse(str).value
+    };
+};
 for(const k in list) {
     const a = list[k];
     for(const [i, v] of a.entries()) {
