@@ -19,7 +19,7 @@ const list = {
         _6m7
     ]
 };
-const _parse = str => {
+const parse = str => {
     const _str = keys[m.get(str[0])] + str.slice(1);
     return {
         str,
@@ -30,8 +30,8 @@ const _parse = str => {
 for(const k in list) {
     const a = list[k];
     for(const [i, v] of a.entries()) {
-        if(Array.isArray(v)) for(const [i, _v] of v.entries()) v[i] = _parse(_v);
-        else a[i] = _parse(v);
+        if(Array.isArray(v)) for(const [i, _v] of v.entries()) v[i] = parse(_v);
+        else a[i] = parse(v);
     }
 }
 export const chordFunction = list;
