@@ -3,7 +3,7 @@ const type = new Map([...'tsd'].map((v, i) => [i, v]));
 const list = [ // tonic subdominant dominant
     ['C', 'F', 'G'],
     ['C△7', 'F△7', 'G7']
-].map(v => v.map(v => [...parseChord(chord).value]));
+].map(v => v.map(v => [...parseChord().value]));
 class Output {
     constructor(diff, i){
         this.diff = diff;
