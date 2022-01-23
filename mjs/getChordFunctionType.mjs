@@ -1,21 +1,25 @@
 import {parseChord} from 'https://rpgen3.github.io/piano/mjs/parseChord.mjs';
-class ChordFunction {
-    constructor(type, chord){
-        this.type = type;
-        this.chord = [...parseChord(chord).value];
-    }
-}
-const t = new ChordFunction('t', 'C'),
-      d = new ChordFunction('d', 'F'),
-      s = new ChordFunction('s', 'G');
+const type = new Map([...'tsd'].map((v, i) => [i, v]));
+const list = [ // tonic subdominant dominant
+    ['C', 'F', 'G'],
+    ['C△7', 'F△7', 'G7']
+].map(v => v.map(v => [...parseChord(chord).value]));
 class Output {
-    constructor(diff, obj){
-        if(diff) Object.assign(this, obj);
+    constructor(diff, i){
         this.diff = diff;
+        this.type = type.get(i);
     }
 }
-export const getChordFunctionType = input => {
-    const m = new Map([t, d, s].map(v => [v.chord.reduce((p, x) => p + input.has(x), 0), v])),
-          diff = Math.max(...m.keys());
-    return new Output(diff, m.get(diff));
-};
+export const chordFunction = new class {
+    constructor(){
+        this.status = 1;
+    }
+    getType(input){
+        const m = new Map(list[this.status].map((v, i) => [
+            v.reduce((p, x) => p + input.has(x), 0),
+            i
+        ]));
+        const diff = Math.max(...m.keys());
+        return new Output(diff, m.get(diff));
+    }
+}
