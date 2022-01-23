@@ -22,9 +22,9 @@ const list = {
 const _parse = str => {
     const _str = keys[m.get(str[0])] + str.slice(1);
     return {
-        name: str,
-        parsedName: _str,
-        value: parse(str).value
+        str,
+        _str,
+        value: parse(_str).value
     };
 };
 for(const k in list) {
