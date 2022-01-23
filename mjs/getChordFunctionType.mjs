@@ -2,7 +2,7 @@ import {parseChord} from 'https://rpgen3.github.io/piano/mjs/parseChord.mjs';
 class ChordFunction {
     constructor(type, chord){
         this.type = type;
-        this.chord = [...parseChord(chord)];
+        this.chord = [...parseChord(chord).value];
     }
 }
 const t = new ChordFunction('t', 'C'),
