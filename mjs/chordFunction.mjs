@@ -24,7 +24,7 @@ const _parse = str => {
     return {
         str,
         _str,
-        value: parse(_str).value
+        value: parseChord(_str).value
     };
 };
 for(const k in list) {
