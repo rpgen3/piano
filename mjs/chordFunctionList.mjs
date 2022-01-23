@@ -8,15 +8,15 @@ const list = {
         'Ⅰ△7',
         [_3m7, _6m7]
     ],
-    d: [ // dominant
-        'Ⅴ7',
-        'Ⅶm7(b5)',
-        _3m7
-    ],
     s: [ //  subdominant
         'Ⅳ△7',
         'Ⅱm7',
         _6m7
+    ], 
+    d: [ // dominant
+        'Ⅴ7',
+        'Ⅶm7(b5)',
+        _3m7
     ]
 };
 const parse = str => {
@@ -34,4 +34,4 @@ for(const k in list) {
         else a[i] = parse(v);
     }
 }
-export const chordFunction = list;
+export const chordFunctionList = list;
