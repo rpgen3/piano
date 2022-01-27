@@ -71,14 +71,18 @@ class Parser {
         }
         return null;
     }
-};
-// parser
+}
 export const parseChord = str => parseFormula(new Input(str));
 const parseFormula = (() => {
-    const p = new Parser;
-    p.set('(', 0); // magic number
-    p.set(')', 1);
-    p.set(['/', 'on'], 2);
+    const p = new Parser,
+          bracketStart = 0,
+          bracketEnd = 1,
+          comma = 2,
+          divide = 3;
+    p.set('(', bracketStart); // magic number
+    p.set(')', bracketEnd);
+    p.set(',', comma);
+    p.set(['/', 'on'], divide);
     return (input, output = new Output, nest = 0) => {
         let start = input.idx;
         const _eval = (offset = 0) => {
@@ -96,22 +100,30 @@ const parseFormula = (() => {
                 input.idx++;
                 continue;
             }
+            const {pending} = output;
             _eval(-1);
-            if(res === 0) parseFormula(input, output, nest + 1);
-            else if(res === 1) {
-                if(nest - 1 < 0) err(input, 'Unable to close brackets');
-                return output;
-            }
-            else if(res === 2) {
-                const o = parseFormula(input, new Output, nest),
-                      v = [...output.value];
-                if(o.isChord) output.value = [...o.value].concat(v); // UST
-                else { // [inversion] or [hybrid chord]
-                    const a = v.sort((a, b) => a - b),
-                          {pitch} = o;
-                    while(a[0] < pitch) a.push(a.shift() + 12);
-                    a.push(pitch);
-                    output.value = a;
+            switch(res) {
+                case bracketStart:
+                    parseFormula(input, output, nest + 1);
+                    break;
+                case bracketEnd:
+                    if(nest - 1 < 0) err(input, 'Unable to close brackets');
+                    return output;
+                case comma:
+                    output.pending = pending;
+                    break;
+                case divide: {
+                    const o = parseFormula(input, new Output, nest),
+                          v = [...output.value];
+                    if(o.isChord) output.value = [...o.value].concat(v); // UST
+                    else { // [inversion] or [hybrid chord]
+                        const a = v.sort((a, b) => a - b),
+                              {pitch} = o;
+                        while(a[0] < pitch) a.push(a.shift() + 12);
+                        a.push(pitch);
+                        output.value = a;
+                    }
+                    break;
                 }
             }
             start = input.idx;
