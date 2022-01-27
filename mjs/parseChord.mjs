@@ -4,8 +4,9 @@ const err = (input, msg) => {
 };
 class Input {
     static nums = new Set('0123456789');
-    constructor(str){
+    constructor(str, nest = 0){
         this.str = str;
+        this.nest = nest;
         this.idx = 0;
     }
     get isEOF(){
@@ -37,6 +38,7 @@ class Output {
         this.chord = null;
         this.isChord = false;
         this.pending = null;
+        this.nest = -1;
     }
     get value(){
         const {pitch, chord} = this;
@@ -87,7 +89,7 @@ const parseFormula = (() => {
         let start = input.idx;
         const _eval = (offset = 0) => {
             const str = input.str.slice(start, input.idx + offset);
-            if(str.length) parseTerm(new Input(str), output);
+            if(str.length) parseTerm(new Input(str, nest), output);
         };
         while(true) {
             if(input.isEOF) {
@@ -179,14 +181,16 @@ const parseBasic = (() => {
                   {chord} = output;
             chord.add(deg2pitch(n) - 2);
         }
+        output.nest = input.nest;
         return parseTerm(input, output);
     };
 })();
 const parseFunc = (() => {
     const p = new Parser;
-    p.set('add', (chord, n, half) => {
+    const add = (chord, n, half) => {
         chord.add(deg2pitch(n) + half);
-    });
+    };
+    p.set('add', add);
     p.set(['omit', 'no'], (chord, n, half) => {
         chord.delete(deg2pitch(n) + half);
     });
@@ -227,7 +231,10 @@ const parseFunc = (() => {
                 if(isAug) aug(chord);
                 else err(input, 'Not found number');
             }
-            if(half === null) _7th(chord, num, half, true);
+            if(half === null) {
+                if(input.nest === output.nest) _7th(chord, num, half, true);
+                else add(chord, num, 0);
+            }
             else _half(chord, num, half);
         }
         else if(func === aug) aug(chord);
