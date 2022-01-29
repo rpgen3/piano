@@ -169,7 +169,7 @@ const parseBasic = (() => {
           major = [0, 4, 7],
           dim = [0, 3, 6];
     p.set(['m', 'min', 'Min', 'minor', 'Minor', '-'], [0, 3, 7]);
-    p.set(['dim', '〇'], [0, 3, 6]);
+    p.set(['dim', '〇'], dim);
     p.set('+', [0, 4, 8]); // aug
     p.set(['Φ', 'φ', 'ø'], [0, 3, 6, 10]);
     return (input, output) => {
