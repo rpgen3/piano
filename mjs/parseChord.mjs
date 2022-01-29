@@ -87,8 +87,8 @@ const parseFormula = (() => {
     p.set(['/', 'on'], divide);
     return (input, output = new Output, nest = 0) => {
         let start = input.idx;
-        const _eval = (offset = 0) => {
-            const str = input.str.slice(start, input.idx + offset);
+        const _eval = (idx = input.idx) => {
+            const str = input.str.slice(start, idx);
             if(str.length) parseTerm(new Input(str, nest), output);
         };
         while(true) {
@@ -97,13 +97,14 @@ const parseFormula = (() => {
                 _eval();
                 return output;
             }
-            const res = p.parse(input);
+            const {idx} = input,
+                  res = p.parse(input);
             if(res === null) {
                 input.idx++;
                 continue;
             }
             const {pending} = output;
-            _eval(-1);
+            _eval(idx);
             switch(res) {
                 case bracketStart:
                     parseFormula(input, output, nest + 1);
