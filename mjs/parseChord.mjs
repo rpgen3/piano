@@ -87,18 +87,18 @@ const parseFormula = (() => {
     p.set(['/', 'on'], divide);
     return (input, output = new Output, nest = 0) => {
         let start = input.idx;
-        const _eval = (idx = input.idx) => {
+        const _eval = idx => {
             const str = input.str.slice(start, idx);
             if(str.length) parseTerm(new Input(str, nest), output);
         };
         while(true) {
+            const {idx} = input;
             if(input.isEOF) {
                 if(nest) err(input, `Unclosed ${nest} brackets`);
-                _eval();
+                _eval(idx);
                 return output;
             }
-            const {idx} = input,
-                  res = p.parse(input);
+            const res = p.parse(input);
             if(res === null) {
                 input.idx++;
                 continue;
@@ -122,7 +122,16 @@ const parseFormula = (() => {
                     else { // [inversion] or [hybrid chord]
                         const a = v.sort((a, b) => a - b),
                               {pitch} = o;
-                        while(a[0] < pitch) a.push(a.shift() + 12);
+                        if(a[0] < pitch) while(a[0] < pitch) a.push(a.shift() + 12);
+                        else {
+                            while(true) {
+                                let v = a[a.length - 1];
+                                while(a[0] < v) v -= 12;
+                                if(v < pitch) break;
+                                a.pop();
+                                a.unshift(v);
+                            }
+                        }
                         a.push(pitch);
                         output.value = a;
                     }
