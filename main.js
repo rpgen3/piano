@@ -17,8 +17,7 @@
         'random',
         'input',
         'css',
-        'util',
-        'hankaku'
+        'util'
     ].map(v => `https://rpgen3.github.io/mylib/export/${v}.mjs`));
     const rpgen4 = await importAll([
         'https://rpgen3.github.io/midi/mjs/piano.mjs',
@@ -26,7 +25,8 @@
             'LayeredCanvas',
             'keyboard',
             'resize',
-            'parseChord'
+            'parseChord',
+            'parseChords'
         ].map(v => `https://rpgen3.github.io/piano/mjs/${v}.mjs`),
         [
             'inversion',
@@ -305,78 +305,14 @@
             save: true
         });
         rpgen4.resize(inputChord.elm.on('keydown', e => e.stopPropagation()));
-        const inputBPM = rpgen3.addSelect(html, {
+        const inputBPM = rpgen3.addInputNum(html, {
             label: 'BPM',
             save: true,
             value: 135,
-            list: [
-                60,
-                120,
-                130,
-                135,
-                140,
-                150,
-                160
-            ]
+            min: 60,
+            max: 240,
+            step: 5
         });
-        const parseChord = () => {
-            while(timeline.length) timeline.pop();
-            const secBar = 60 / inputBPM() * 4,
-                  frontChars = new Set('ABCDEFG_=%N'); // N === N.C.
-            let idx = 0;
-            for(const line of rpgen3.toHan(inputChord()).split('\n').map(v => v.trim())) {
-                if(!line.length || /^#/.test(line)) continue;
-                for(const str of line.split(/[\|lｌ→]/)) {
-                    if(!str.length) continue;
-                    const when = idx++ * secBar,
-                          a = [];
-                    let flag = false;
-                    for(let i = 0; i < str.length; i++) {
-                        const char = str[i],
-                              prev = str[i - 1],
-                              prev2 = str.slice(i - 2, i);
-                        if(!frontChars.has(char)) continue;
-                        else if(prev === '/' || prev2 === 'on') continue;
-                        else if(prev === '.' && char === 'C') continue;
-                        if(!flag) {
-                            if(char === '_' || char === '=' || char === '%') continue;
-                            else flag = true;
-                        }
-                        a.push(i);
-                    }
-                    if(!a.length) continue;
-                    const unitTime = secBar / a.length;
-                    let prev = null;
-                    for(const [i, v] of a.entries()) {
-                        const s = str.slice(v, i === a.length - 1 ? str.length : a[i + 1]).replace(/\s+/g,''),
-                              c = s[0];
-                        if(c === '_' || c === 'N') continue;
-                        else if(c === '=') {
-                            prev.duration += unitTime;
-                            continue;
-                        }
-                        const _when = when + i * unitTime;
-                        if(c === '%') {
-                            prev = {...prev};
-                            prev.when = _when;
-                        }
-                        else {
-                            const key = s.slice(0, s[1] === '#' ? 2 : 1),
-                                  chord = s.slice(key.length).replaceAll(/[\s・]/g, '');
-                            prev = {
-                                key,
-                                chord,
-                                when: _when,
-                                duration: unitTime
-                            };
-                        }
-                        timeline.push(prev);
-                    }
-                }
-            }
-            const end = timeline[timeline.length - 1];
-            endTime = end.when + end.duration;
-        };
         const stop = () => {
             clearInterval(intervalId);
             cvWhiteEffect.clear();
@@ -387,15 +323,18 @@
         rpgen3.addBtn(html, 'play', async () => {
             stop();
             await record.init();
-            parseChord();
-            startTime = audioNode.ctx.currentTime - timeline[0].when + coolTime;
+            const a = rpgen4.parseChords(inputChord(), inputBPM()),
+                  end = a[a.length - 1];
+            endTime = end.when + end.duration;
+            startTime = audioNode.ctx.currentTime - a[0].when + coolTime;
+            timeline = a;
             nowIndex = 0;
             intervalId = setInterval(playChordProgression);
         }).addClass('btn');
-        const timeline = [],
-              planTime = 0.1,
+        const planTime = 0.1,
               coolTime = 0.5;
-        let startTime = 0,
+        let timeline = null,
+            startTime = 0,
             endTime = 0,
             nowIndex = 0,
             intervalId = -1;
