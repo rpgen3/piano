@@ -121,7 +121,7 @@ const parseFormula = (() => {
                     if(o.isChord) output.value = [...o.value].concat(v); // UST
                     else { // [inversion] or [hybrid chord]
                         const a = v.sort((a, b) => a - b),
-                              {pitch} = o;
+                              pitch = (o.pitch + 3) % 12 - 3;
                         if(a[0] < pitch) while(a[0] < pitch) a.push(a.shift() + 12);
                         else {
                             while(true) {
