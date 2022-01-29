@@ -179,7 +179,7 @@ const parseBasic = (() => {
         if(res === dim) {
             const {num} = input,
                   {chord} = output;
-            chord.add(deg2pitch(n) - 2);
+            chord.add(deg2pitch(num) - 2);
         }
         output.nest = input.nest;
         return parseTerm(input, output);
