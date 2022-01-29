@@ -309,8 +309,8 @@
             label: 'BPM',
             save: true,
             value: 135,
-            min: 60,
-            max: 240,
+            min: 100,
+            max: 180,
             step: 5
         });
         const stop = () => {
