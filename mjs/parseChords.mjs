@@ -11,7 +11,6 @@ export const parseChords = (str, bpm = 120) => {
             if(!str.length) continue;
             const when = idx++ * secBar,
                   a = [];
-            let flag = false;
             for(let i = 0; i < str.length; i++) {
                 const char = str[i],
                       prev = str[i - 1],
@@ -19,10 +18,6 @@ export const parseChords = (str, bpm = 120) => {
                 if(!frontChars.has(char)) continue;
                 else if(prev === '/' || prev2 === 'on') continue;
                 else if(prev2 === 'N.' && char === 'C') continue;
-                if(!flag) {
-                    if(char === '_' || char === '=' || char === '%') continue;
-                    else flag = true;
-                }
                 a.push(i);
             }
             if(!a.length) continue;
@@ -37,6 +32,7 @@ export const parseChords = (str, bpm = 120) => {
                 }
                 const _when = when + i * unitTime;
                 if(c === '%') {
+                    if(last === null) continue;
                     last = {...last};
                     last.when = _when;
                     last.duration = unitTime;
