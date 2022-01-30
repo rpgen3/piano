@@ -21,7 +21,7 @@ export const parseChords = (str, bpm = 120) => {
                 a.push(i);
             }
             if(!a.length) continue;
-            const unitTime = secBar / a.length;
+            const unitTime = secBar / (2 ** (Math.log2(a.length) | 0));
             for(const [i, v] of a.entries()) {
                 const s = str.slice(v, i === a.length - 1 ? str.length : a[i + 1]).replace(/\s+/g,''),
                       c = s[0];
