@@ -11,3 +11,14 @@ Let it be進行: C|G|Am|F
 最高にxx界隈っぽいコード進行:
 F#M7→F7→A#m/F→C#7
 F#M7→F7・E7→F#add9/D#・G#/F#→G#sus4/F・F(+9)
+
+微妙なコードの雰囲気:
+Cm6BbM7(9)
+Cm6G7(+5,+9)
+Cm7(9)BbM7(9)
+Cm7(9)Dm7(9)Daug7
+DbM7(9)DbmM7
+Cm7(11)Faug7
+Bbm7(9)Bbm7(11)
+C7(+5,+9)C7(+5,-9)
+Fm7(9)FmM7
