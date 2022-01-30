@@ -125,8 +125,7 @@ const parseFormula = (() => {
                         if(a[0] < pitch) while(a[0] < pitch) a.push(a.shift() + 12);
                         else {
                             while(true) {
-                                let v = a[a.length - 1];
-                                while(a[0] < v) v -= 12;
+                                let v = a[a.length - 1] - 12;
                                 if(v < pitch) break;
                                 a.pop();
                                 a.unshift(v);
