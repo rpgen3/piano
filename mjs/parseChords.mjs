@@ -21,11 +21,15 @@ export const parseChords = (str, bpm = 120) => {
                 a.push(i);
             }
             if(!a.length) continue;
-            const unitTime = secBar / (2 ** (Math.log2(a.length) | 0));
+            const divide = 2 ** Math.ceil(Math.log2(a.length)),
+                  unitTime = secBar / divide;
             for(const [i, v] of a.entries()) {
                 const s = str.slice(v, i === a.length - 1 ? str.length : a[i + 1]).replace(/\s+/g,''),
                       c = s[0];
-                if(c === '_' || c === 'N') continue;
+                if(c === '_' || c === 'N') {
+                    last = null;
+                    continue;
+                }
                 else if(c === '=') {
                     last.duration += unitTime;
                     continue;
@@ -49,6 +53,7 @@ export const parseChords = (str, bpm = 120) => {
                 }
                 output.push(last);
             }
+            if(last !== null && divide > a.length) last.duration = unitTime * (divide - a.length);
         }
     }
     return output;
