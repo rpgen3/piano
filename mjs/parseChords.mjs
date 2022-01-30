@@ -3,7 +3,8 @@ export const parseChords = (str, bpm = 120) => {
     const output = [],
           secBar = 60 / bpm * 4,
           frontChars = new Set('ABCDEFG_=%N'); // N === N.C.
-    let idx = 0;
+    let idx = 0,
+        prev = null;
     for(const line of toHan(str).split('\n').map(v => v.trim())) {
         if(!line.length || /^#/.test(line)) continue;
         for(const str of line.split(/[\|lｌ→]/)) {
@@ -26,7 +27,6 @@ export const parseChords = (str, bpm = 120) => {
             }
             if(!a.length) continue;
             const unitTime = secBar / a.length;
-            let prev = null;
             for(const [i, v] of a.entries()) {
                 const s = str.slice(v, i === a.length - 1 ? str.length : a[i + 1]).replace(/\s+/g,''),
                       c = s[0];
