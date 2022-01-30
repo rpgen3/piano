@@ -53,7 +53,7 @@ export const parseChords = (str, bpm = 120) => {
                 }
                 output.push(last);
             }
-            if(last !== null && divide > a.length) last.duration = unitTime * (divide - a.length);
+            if(last !== null && divide > a.length) last.duration += unitTime * (divide - a.length);
         }
     }
     return output;
