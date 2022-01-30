@@ -4,7 +4,7 @@ export const parseChords = (str, bpm = 120) => {
           secBar = 60 / bpm * 4,
           frontChars = new Set('ABCDEFG_=%N'); // N === N.C.
     let idx = 0,
-        prev = null;
+        last = null;
     for(const line of toHan(str).split('\n').map(v => v.trim())) {
         if(!line.length || /^#/.test(line)) continue;
         for(const str of line.split(/[\|lｌ→]/)) {
@@ -18,7 +18,7 @@ export const parseChords = (str, bpm = 120) => {
                       prev2 = str.slice(i - 2, i);
                 if(!frontChars.has(char)) continue;
                 else if(prev === '/' || prev2 === 'on') continue;
-                else if(prev === '.' && char === 'C') continue;
+                else if(prev2 === 'N.' && char === 'C') continue;
                 if(!flag) {
                     if(char === '_' || char === '=' || char === '%') continue;
                     else flag = true;
@@ -32,25 +32,26 @@ export const parseChords = (str, bpm = 120) => {
                       c = s[0];
                 if(c === '_' || c === 'N') continue;
                 else if(c === '=') {
-                    prev.duration += unitTime;
+                    last.duration += unitTime;
                     continue;
                 }
                 const _when = when + i * unitTime;
                 if(c === '%') {
-                    prev = {...prev};
-                    prev.when = _when;
+                    last = {...last};
+                    last.when = _when;
+                    last.duration = unitTime;
                 }
                 else {
                     const key = s.slice(0, s[1] === '#' ? 2 : 1),
                           chord = s.slice(key.length).replaceAll(/[\s・]/g, '');
-                    prev = {
+                    last = {
                         key,
                         chord,
                         when: _when,
                         duration: unitTime
                     };
                 }
-                output.push(prev);
+                output.push(last);
             }
         }
     }
