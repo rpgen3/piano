@@ -170,10 +170,10 @@ const parsePitch = (() => {
         output.pitch = pitch;
         const half = parseHalf(input, true);
         if(half !== null) output.pitch += half;
-        return parseBasic(input, output);
+        return parseBase(input, output);
     };
 })();
-const parseBasic = (() => {
+const parseBase = (() => {
     const p = new Parser,
           major = [0, 4, 7],
           dim = [0, 3, 6];
