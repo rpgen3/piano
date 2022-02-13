@@ -21,12 +21,14 @@
     ].map(v => `https://rpgen3.github.io/mylib/export/${v}.mjs`));
     const rpgen4 = await importAll([
         'https://rpgen3.github.io/midi/mjs/piano.mjs',
+        'https://rpgen3.github.io/maze/mjs/heap/Heap.mjs',
         [
             'LayeredCanvas',
             'keyboard',
             'resize',
             'parseChord',
-            'parseChords'
+            'parseChords',
+            'toMIDI'
         ].map(v => `https://rpgen3.github.io/piano/mjs/${v}.mjs`),
         [
             'inversion',
@@ -250,8 +252,8 @@
             playChord(key.chord, chord.chord);
         }
     };
-    const playChord = (note, chord, param = {}) => {
-        const notes = [...rpgen4.parseChord(`${note}${chord}`).value];
+    const playChord = (key, chord, param = {}) => {
+        const notes = [...rpgen4.parseChord(`${key}${chord}`).value];
         for(const v of notes) sf?.play({
             ctx: audioNode.ctx,
             destination: audioNode.note,
@@ -342,7 +344,12 @@
             const time = audioNode.ctx.currentTime - startTime;
             if(time > endTime) return stop();
             while(nowIndex < timeline.length){
-                const {key, chord, when, duration} = timeline[nowIndex],
+                const {
+                    key,
+                    chord,
+                    when,
+                    duration
+                } = timeline[nowIndex],
                       _when = when - time;
                 if(_when > planTime) break;
                 nowIndex++;
@@ -377,6 +384,50 @@
                 }
             }
         };
+        $('<dd>').appendTo(html);
+        rpgen3.addBtn(html, 'DL MIDI', () => {
+            const bpm = inputBPM(),
+                  heap = new rpgen4.Heap();
+            for(const {
+                key,
+                chord,
+                when,
+                duration
+            } of rpgen4.parseChords(inputChord(), bpm)) {
+                for(const v of rpgen4.parseChord(`${key}${chord}`).value) {
+                    const note = c3 + v + 21;
+                    for(const [i, v] of [
+                        when,
+                        when + duration
+                    ].entries()) heap.push(v, {
+                        note,
+                        flag: !i,
+                        when: v
+                    });
+                }
+            }
+            const a = [...heap],
+                  m = new Map;
+            let now = -1;
+            for(const [i, v] of a.entries()) {
+                const {note, flag, when} = v;
+                if(now === when) {
+                    if(m.has(note) && flag === false) {
+                        m.get(note).flag = false;
+                        v.flag = true;
+                    }
+                }
+                else {
+                    now = when;
+                    m.clear();
+                }
+                m.set(note, v);
+            }
+            rpgen3.download(rpgen4.toMIDI({
+                tracks: [a],
+                bpm
+            }), 'piano.mid');
+        }).addClass('btn');
     }
     const record = {};
     {
@@ -397,7 +448,7 @@
             value: 16
         });
         let rec = null;
-        rpgen3.addBtn(html, 'download', async () => {
+        rpgen3.addBtn(html, 'DL WAV', async () => {
             rpgen3.download(rpgen4.toWAV({
                 data: await rec.data,
                 sampleRate: audioNode.ctx.sampleRate,
