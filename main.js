@@ -28,7 +28,8 @@
             'resize',
             'parseChord',
             'parseChords',
-            'toMIDI'
+            'toMIDI',
+            'fixTrack'
         ].map(v => `https://rpgen3.github.io/piano/mjs/${v}.mjs`),
         [
             'inversion',
@@ -406,25 +407,8 @@
                     });
                 }
             }
-            const a = [...heap],
-                  m = new Map;
-            let now = -1;
-            for(const [i, v] of a.entries()) {
-                const {note, flag, when} = v;
-                if(now === when) {
-                    if(m.has(note) && flag === false) {
-                        m.get(note).flag = false;
-                        v.flag = true;
-                    }
-                }
-                else {
-                    now = when;
-                    m.clear();
-                }
-                m.set(note, v);
-            }
             rpgen3.download(rpgen4.toMIDI({
-                tracks: [a],
+                tracks: [rpgen4.fixTrack([...heap])],
                 bpm
             }), 'piano.mid');
         }).addClass('btn');
