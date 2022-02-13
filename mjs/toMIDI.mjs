@@ -21,9 +21,8 @@ const to2byte = n => [(n & 0xff00) >> 8, n & 0xff],
 const headerChunks = (arr, tracks, bpm, div) => {
     arr.push(0x4D, 0x54, 0x68, 0x64); // チャンクタイプ(4byte)
     arr.push(...to4byte(6)); // データ長(4byte)
-    const formatType = 1;
     for(const v of [
-        formatType,
+        1, // formatType
         tracks.length + 1,
         div
     ]) arr.push(...to2byte(v));
