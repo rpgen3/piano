@@ -22,7 +22,7 @@ const headerChunks = (arr, tracks, bpm, div) => {
     arr.push(0x4D, 0x54, 0x68, 0x64); // チャンクタイプ(4byte)
     arr.push(...to4byte(6)); // データ長(4byte)
     for(const v of [
-        1, // formatType
+        1, // Format Type 0 or 1 (or 2)
         tracks.length + 1,
         div
     ]) arr.push(...to2byte(v));
