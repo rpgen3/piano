@@ -24,7 +24,7 @@ const headerChunks = (arr, tracks, bpm, div) => {
     const formatType = 1;
     for(const v of [
         formatType,
-        tracks.length,
+        tracks.length + 1,
         div
     ]) arr.push(...to2byte(v));
 };
