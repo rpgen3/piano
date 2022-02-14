@@ -402,7 +402,7 @@
                         when + duration
                     ].entries()) heap.push(v, {
                         note,
-                        flag: !i,
+                        velocity: i === 0 ? 100 : 0,
                         when: v
                     });
                 }
