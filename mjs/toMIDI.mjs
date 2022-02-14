@@ -36,7 +36,7 @@ const trackChunks = (arr, func) => {
     arr.push(...to4byte(a.length)); // データ長(4byte)
     while(a.length) arr.push(a.shift());
 };
-const sec2delta = (sec, bpm, div) => Math.round(sec / (60 / (bpm * div)));
+const sec2delta = (sec, bpm, div) => Math.round(sec * bpm * div / 60);
 const deltaTime = n => { // 可変長数値表現
     if(n === 0) return [0];
     const arr = [];
