@@ -396,7 +396,7 @@
                 duration
             } of rpgen4.parseChords(inputChord(), bpm)) {
                 for(const v of rpgen4.parseChord(`${key}${chord}`).value) {
-                    const note = c3 + v + 21;
+                    const note = v + c3 + 21;
                     for(const [i, v] of [
                         when,
                         when + duration
