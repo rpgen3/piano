@@ -2,11 +2,16 @@ export const fixTrack = track => {
     const m = new Map;
     let now = -1;
     for(const [i, v] of track.entries()) {
-        const {note, flag, when} = v;
+        const {
+            note,
+            velocity,
+            when
+        } = v;
         if(now === when) {
-            if(m.has(note) && flag === false) {
-                m.get(note).flag = false;
-                v.flag = true;
+            if(m.has(note) && velocity === 0) {
+                const _v = m.get(note);
+                v.velocity = _v.velocity;
+                _v.velocity = 0;
             }
         }
         else {
