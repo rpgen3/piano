@@ -33,8 +33,8 @@
         ].map(v => `https://rpgen3.github.io/piano/mjs/${v}.mjs`),
         [
             'audioNode',
-            'SoundFont_surikov',
-            'SoundFont_surikov_list',
+            'surikov/SoundFont',
+            'surikov/SoundFont_list',
             'RecordWorklet',
             'toWAV'
         ].map(v => `https://rpgen3.github.io/soundfont/mjs/${v}.mjs`)
@@ -43,7 +43,7 @@
         LayeredCanvas,
         keyboard,
         audioNode,
-        SoundFont_surikov_list
+        SoundFont_list
     } = rpgen4;
     [
         'container',
@@ -72,7 +72,7 @@
         });
     };
     const notSelected = 'not selected';
-    let SoundFont = rpgen4.SoundFont_surikov,
+    let SoundFont = rpgen4.SoundFont,
         sf = null;
     {
         const {html} = addHideArea('load SoundFont');
@@ -82,9 +82,9 @@
         const selectInstrument = rpgen3.addSelect(html, {
             label: 'select instrument'
         });
-        SoundFont_surikov_list.onload(() => {
+        SoundFont_list.onload(() => {
             selectFont.elm.show(hideTime);
-            selectFont.update([notSelected, ...SoundFont_surikov_list.tone.keys()], notSelected);
+            selectFont.update([notSelected, ...SoundFont_list.tone.keys()], notSelected);
             selectInstrument.update([notSelected], notSelected);
         });
         selectFont.elm.on('change', async () => {
@@ -98,13 +98,13 @@
             }));
             selectInstrument.update([
                 [notSelected, notSelected],
-                ...[...SoundFont_surikov_list.tone.get(font).keys()].map(id => {
+                ...[...SoundFont_list.tone.get(font).keys()].map(id => {
                     const _id = id.slice(0, 3);
                     return [map.has(_id) ? map.get(_id) : id, id];
                 })
             ], notSelected);
         });
-        SoundFont_surikov_list.init();
+        SoundFont_list.init();
         selectInstrument.elm.on('change', async () => {
             const ins = selectInstrument();
             if(ins === notSelected) return;
@@ -212,13 +212,13 @@
         cvBlack.ctx.fill();
         return keys;
     })();
-    const c3 = rpgen4.piano.note2index('C3');
+    const c3 = rpgen4.piano.note2index('C3') + 21;
     let disabledChord = false;
     const update = () => {
         requestAnimationFrame(update);
         const isNormalPiano = selectMode();
         for(const [i, v] of pianoKeys.entries()) {
-            const {x, w, h, isBlack, pressed, input} = v,
+            const {x, w, h, isBlack, pressed, input, pitch} = v,
                   isPressed = keyboard.has(input),
                   {ctx} = isBlack ? cvBlackEffect : cvWhiteEffect;
             if(pressed) {
@@ -234,7 +234,7 @@
                 if(isNormalPiano) sf?.play({
                     ctx: audioNode.ctx,
                     destination: audioNode.note,
-                    note: rpgen4.piano.note[c3 + i]
+                    pitch
                 });
             }
         }
@@ -257,7 +257,7 @@
         for(const v of notes) sf?.play({
             ctx: audioNode.ctx,
             destination: audioNode.note,
-            note: rpgen4.piano.note[c3 + v],
+            pitch: c3 + v,
             ...param
         });
         return notes;
@@ -269,8 +269,12 @@
         for(const [i, v] of rpgen4.piano.keys.entries()) pianoKeys[(i + 9) % 12].chord = v;
         for(const [i, v] of a.entries()) pianoKeys[i + 12].chord = v;
         for(const [i, v] of b.entries()) {
-            pianoKeys[i].input = v;
-            pianoKeys[i].note = rpgen4.piano.note[i + c3];
+            const pitch = i + c3;
+            Object.assign(pianoKeys[i], {
+                input: v,
+                pitch,
+                note: rpgen4.piano.note[pitch]
+            });
         }
         selectMode.elm.trigger('change');
         update();
