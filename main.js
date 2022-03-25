@@ -32,7 +32,6 @@
             'fixTrack'
         ].map(v => `https://rpgen3.github.io/piano/mjs/${v}.mjs`),
         [
-            'inversion',
             'audioNode',
             'SoundFont_surikov',
             'SoundFont_surikov_list',
