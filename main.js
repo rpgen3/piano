@@ -212,7 +212,7 @@
         cvBlack.ctx.fill();
         return keys;
     })();
-    const c3 = rpgen4.piano.note2index('C3') + 21;
+    const c3 = rpgen4.piano.note2index('C3');
     let disabledChord = false;
     const update = () => {
         requestAnimationFrame(update);
@@ -234,7 +234,7 @@
                 if(isNormalPiano) sf?.play({
                     ctx: audioNode.ctx,
                     destination: audioNode.note,
-                    pitch
+                    pitch: pitch + 21
                 });
             }
         }
@@ -257,7 +257,7 @@
         for(const v of notes) sf?.play({
             ctx: audioNode.ctx,
             destination: audioNode.note,
-            pitch: c3 + v,
+            pitch: c3 + v + 21,
             ...param
         });
         return notes;
