@@ -132,7 +132,7 @@
             audioNode.note.gain.value = inputVolume() / 100;
         }).trigger('input');
     }
-    const selectMode = (() => {
+    const [selectMode, inputList, getUserList] = (() => {
         const {html} = addHideArea('select mode');
         const selectMode = rpgen3.addSelect(html, {
             label: 'piano mode',
@@ -155,7 +155,18 @@
                 ctx.fillText(mode ? note : chord, x + w / 2, ...[h, w].map(v => v - 10));
             }
         });
-        return selectMode;
+        const inputList = rpgen3.addInputStr(html, {
+            label: 'chord list',
+            textarea: true,
+            save: true
+        });
+        const getUserList = () => inputList().split('\n').slice(0, 12);
+        inputList.elm.on('change', () => {
+            for(const [i, v] of getUserList().entries()) pianoKeys[i + 12].chord = v;
+            selectMode.elm.trigger('change');
+        });
+        rpgen4.resize(inputList.elm.on('keydown', e => e.stopPropagation()));
+        return [selectMode, inputList, getUserList];
     })();
     LayeredCanvas.init($('<div>').appendTo(main));
     const cvWhite = new LayeredCanvas(),
@@ -267,7 +278,8 @@
         'keyboard'
     ].map(v => `https://rpgen3.github.io/piano/list/${v}.txt`).map(fetchList)).then(([a, b]) => {
         for(const [i, v] of rpgen4.piano.keys.entries()) pianoKeys[(i + 9) % 12].chord = v;
-        for(const [i, v] of a.entries()) pianoKeys[i + 12].chord = v;
+        const _a = inputList() ? getUserList() : (inputList(a.join('\n')), a);
+        for(const [i, v] of _a.entries()) pianoKeys[i + 12].chord = v;
         for(const [i, v] of b.entries()) {
             const pitch = i + c3;
             Object.assign(pianoKeys[i], {
