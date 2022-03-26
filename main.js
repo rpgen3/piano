@@ -415,7 +415,7 @@
                     for(const [i, v] of [
                         when,
                         when + duration
-                    ].entries()) heap.push(v, {
+                    ].entries()) heap.add(v, {
                         note,
                         velocity: i === 0 ? 100 : 0,
                         when: v
