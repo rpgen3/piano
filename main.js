@@ -28,9 +28,12 @@
             'resize',
             'parseChord',
             'parseChords',
-            'toMIDI',
-            'fixTrack'
-        ].map(v => `https://rpgen3.github.io/piano/mjs/${v}.mjs`),
+            [
+                'fixTrack',
+                'sec2delta',
+                'toMIDI'
+            ].map(v => `midi/${v}`)
+        ].flat().map(v => `https://rpgen3.github.io/piano/mjs/${v}.mjs`),
         [
             'audioNode',
             'surikov/SoundFont',
@@ -418,12 +421,12 @@
                     ].entries()) heap.add(v, {
                         pitch,
                         velocity: i === 0 ? 100 : 0,
-                        when: v
+                        when: rpgen4.sec2delta(v)
                     });
                 }
             }
             rpgen3.download(rpgen4.toMIDI({
-                tracks: [rpgen4.fixTrack([...heap])],
+                tracks: [[0, rpgen4.fixTrack([...heap])]],
                 bpm
             }), 'piano.mid');
         }).addClass('btn');
