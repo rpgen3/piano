@@ -3,13 +3,13 @@ export const fixTrack = track => {
     let now = -1;
     for(const [i, v] of track.entries()) {
         const {
-            note,
+            pitch,
             velocity,
             when
         } = v;
         if(now === when) {
-            if(m.has(note) && velocity === 0) {
-                const _v = m.get(note);
+            if(m.has(pitch) && velocity === 0) {
+                const _v = m.get(pitch);
                 v.velocity = _v.velocity;
                 _v.velocity = 0;
             }
@@ -18,7 +18,7 @@ export const fixTrack = track => {
             now = when;
             m.clear();
         }
-        m.set(note, v);
+        m.set(pitch, v);
     }
     return track;
 };
