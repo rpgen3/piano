@@ -8,12 +8,12 @@ export const toMIDI = ({tracks, bpm = 120, div = 0x01E0}) => {
     for(const [i, track] of tracks.entries()) trackChunks(arr, a => {
         let now = 0;
         for(const {
-            note,
+            pitch,
             velocity,
             when
         } of track) {
             a.push(...deltaTime(sec2delta(when - now, bpm, div)));
-            a.push(0x90 + i, note, velocity);
+            a.push(0x90 + i, pitch, velocity);
             now = when;
         }
     });
