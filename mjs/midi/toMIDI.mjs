@@ -5,15 +5,17 @@ export const toMIDI = ({tracks, bpm = 120, div = 0x01E0}) => {
         a.push(...deltaTime(0));
         a.push(0xFF, 0x51, 0x03, ...to3byte(6E7 / bpm));
     });
-    for(const [i, track] of tracks.entries()) trackChunks(arr, a => {
+    for(const [ch, track] of tracks) trackChunks(arr, a => {
+        const n = Number(ch);
+        if(Number.isNaN(n) || n < 0 || n > 0xF) throw 'Track channel is invalid.';
         let now = 0;
         for(const {
             pitch,
             velocity,
             when
         } of track) {
-            a.push(...deltaTime(sec2delta(when - now, bpm, div)));
-            a.push(0x90 + i, pitch, velocity);
+            a.push(...deltaTime(when - now));
+            a.push(0x90 + n, pitch, velocity);
             now = when;
         }
     });
@@ -40,7 +42,6 @@ const trackChunks = (arr, func) => {
     arr.push(...to4byte(a.length)); // データ長(4byte)
     while(a.length) arr.push(a.shift());
 };
-const sec2delta = (sec, bpm, div) => Math.round(sec * bpm * div / 60);
 const deltaTime = n => { // 可変長数値表現
     if(n === 0) return [0];
     const arr = [];
