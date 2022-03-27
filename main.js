@@ -411,12 +411,12 @@
                 duration
             } of rpgen4.parseChords(inputChord(), bpm)) {
                 for(const v of rpgen4.parseChord(`${key}${chord}`).value) {
-                    const note = v + c3 + 21;
+                    const pitch = v + c3 + 21;
                     for(const [i, v] of [
                         when,
                         when + duration
                     ].entries()) heap.add(v, {
-                        note,
+                        pitch,
                         velocity: i === 0 ? 100 : 0,
                         when: v
                     });
