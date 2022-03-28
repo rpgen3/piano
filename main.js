@@ -421,7 +421,10 @@
                     ].entries()) heap.add(v, {
                         pitch,
                         velocity: i === 0 ? 100 : 0,
-                        when: rpgen4.sec2delta(v, bpm)
+                        when: rpgen4.sec2delta({
+                            sec: v,
+                            bpm
+                        })
                     });
                 }
             }
