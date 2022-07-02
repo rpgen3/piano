@@ -10,3 +10,4 @@ export const getTempos = midi => {
     if(result.size) return result;
     else throw 'BPM is none.';
 };
+export const tempo2BPM = tempo => 6E7 / tempo;
