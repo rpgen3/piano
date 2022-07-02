@@ -1,6 +1,6 @@
 import {Heap} from 'https://rpgen3.github.io/maze/mjs/heap/Heap.mjs';
 import {fixTrack} from 'https://rpgen3.github.io/piano/mjs/midi/fixTrack.mjs';
-const makeMidiTrack = midiNoteSequence => {
+export const makeMidiTrack = midiNoteSequence => {
     const heap = new Heap();
     for(const {
         pitch,
