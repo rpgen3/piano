@@ -425,7 +425,7 @@
                 })));
             });
             rpgen3.download(rpgen4.toMIDI({
-                tracks: [[0, rpgen4.fixTrack(midiNoteArray)]],
+                tracks: [[0, rpgen4.MidiNoteMessage.makeArray(midiNoteArray)]],
                 bpm
             }), 'piano.mid');
         }).addClass('btn');
