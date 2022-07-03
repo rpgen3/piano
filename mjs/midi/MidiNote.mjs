@@ -22,7 +22,7 @@ export class MidiNote {
                     unit.end = currentTime;
                     heap.add(unit.start, unit);
                     now.delete(pitch);
-                } else if(!isNoteOFF) now.set(pitch, new MidiNote({
+                } else if (!isNoteOFF) now.set(pitch, new MidiNote({
                     ch: channel,
                     pitch,
                     velocity,
