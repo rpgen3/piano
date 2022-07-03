@@ -416,7 +416,7 @@
                     sec: v,
                     bpm
                 }));
-                return rpgen4.parseChord(`${key}${chord}`).value.map(v => new rpgen4.MidiNote(({
+                return [...rpgen4.parseChord(`${key}${chord}`).value].map(v => new rpgen4.MidiNote(({
                     ch: 0,
                     pitch: v + c3 + 21,
                     velocity: 100,
