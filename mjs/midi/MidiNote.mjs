@@ -7,7 +7,7 @@ export class MidiNote {
         this.start = start;
         this.end = -1;
     }
-    makeArray() {
+    static makeArray() {
         const heap = new Heap();
         for(const {event} of midi.track) {
             const now = new Map;
