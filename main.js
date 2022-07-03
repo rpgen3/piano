@@ -21,7 +21,6 @@
     ].map(v => `https://rpgen3.github.io/mylib/export/${v}.mjs`));
     const rpgen4 = await importAll([
         'https://rpgen3.github.io/midi/mjs/piano.mjs',
-        'https://rpgen3.github.io/maze/mjs/heap/Heap.mjs',
         [
             'LayeredCanvas',
             'keyboard',
@@ -29,7 +28,8 @@
             'parseChord',
             'parseChords',
             [
-                'fixTrack',
+                'MidiNote',
+                'MidiNoteMessage',
                 'sec2delta',
                 'toMIDI'
             ].map(v => `midi/${v}`)
@@ -405,31 +405,27 @@
         };
         $('<dd>').appendTo(html);
         rpgen3.addBtn(html, 'DL MIDI', () => {
-            const bpm = inputBPM(),
-                  heap = new rpgen4.Heap();
-            for(const {
+            const bpm = inputBPM();
+            const midiNoteArray = rpgen4.parseChords(inputChord(), bpm).flatMap(({
                 key,
                 chord,
                 when,
                 duration
-            } of rpgen4.parseChords(inputChord(), bpm)) {
-                for(const v of rpgen4.parseChord(`${key}${chord}`).value) {
-                    const pitch = v + c3 + 21;
-                    for(const [i, v] of [
-                        when,
-                        when + duration
-                    ].entries()) heap.add(v, {
-                        pitch,
-                        velocity: i === 0 ? 100 : 0,
-                        when: rpgen4.sec2delta({
-                            sec: v,
-                            bpm
-                        })
-                    });
-                }
-            }
+            }) => {
+                const [start, end] = [when, when + duration].map(v => rpgen4.sec2delta({
+                    sec: v,
+                    bpm
+                }));
+                return rpgen4.parseChord(`${key}${chord}`).value.map(v => new rpgen4.MidiNote(({
+                    ch: 0,
+                    pitch: v + c3 + 21,
+                    velocity: 100,
+                    start,
+                    end
+                })));
+            });
             rpgen3.download(rpgen4.toMIDI({
-                tracks: [[0, rpgen4.fixTrack([...heap])]],
+                tracks: [[0, rpgen4.fixTrack(midiNoteArray)]],
                 bpm
             }), 'piano.mid');
         }).addClass('btn');
