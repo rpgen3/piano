@@ -17,11 +17,11 @@ export class MidiNoteMessage {
                 start,
                 end
             ].entries()) {
-                heap.add(v, {
+                heap.add(v, new MidiNoteMessage({
                     pitch,
                     velocity: i === 0 ? velocity : 0,
                     when: v
-                });
+                }));
             }
         }
         return this.#fixArray([...heap]);
