@@ -1,12 +1,11 @@
 import {Heap} from 'https://rpgen3.github.io/maze/mjs/heap/Heap.mjs';
-import {fixTrack} from 'https://rpgen3.github.io/piano/mjs/midi/fixTrack.mjs';
-export class MidiTrack {
+export class MidiNoteMessage {
     constructor({pitch, velocity, when}) {
         this.pitch = pitch;
         this.velocity = velocity;
         this.when = when;
     }
-    makeArray(midiNoteArray) {
+    static makeArray(midiNoteArray) {
         const heap = new Heap();
         for(const {
             pitch,
@@ -25,6 +24,29 @@ export class MidiTrack {
                 });
             }
         }
-        return fixTrack([...heap]);
+        return this.#fixArray([...heap]);
+    }
+    static #fixArray(midiNoteMessageArray) {
+        const m = new Map;
+        let currentTime = -1;
+        for(const [i, v] of midiNoteMessageArray.entries()) {
+            const {
+                pitch,
+                velocity,
+                when
+            } = v;
+            if(currentTime === when) {
+                if(m.has(pitch) && velocity === 0) {
+                    const _v = m.get(pitch);
+                    v.velocity = _v.velocity;
+                    _v.velocity = 0;
+                }
+            } else {
+                currentTime = when;
+                m.clear();
+            }
+            m.set(pitch, v);
+        }
+        return midiNoteMessageArray;
     }
 }
