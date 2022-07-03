@@ -29,23 +29,23 @@ export class MidiNoteMessage {
     static #fixArray(midiNoteMessageArray) {
         const m = new Map;
         let currentTime = -1;
-        for(const [i, v] of midiNoteMessageArray.entries()) {
+        for(const midiNoteMessage of midiNoteMessageArray) {
             const {
                 pitch,
                 velocity,
                 when
-            } = v;
+            } = midiNoteMessage;
             if(currentTime === when) {
                 if(m.has(pitch) && velocity === 0) {
-                    const _v = m.get(pitch);
-                    v.velocity = _v.velocity;
-                    _v.velocity = 0;
+                    const _midiNoteMessage = m.get(pitch);
+                    midiNoteMessage.velocity = _midiNoteMessage.velocity;
+                    _midiNoteMessage.velocity = 0;
                 }
             } else {
                 currentTime = when;
                 m.clear();
             }
-            m.set(pitch, v);
+            m.set(pitch, midiNoteMessage);
         }
         return midiNoteMessageArray;
     }
