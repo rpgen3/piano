@@ -19,7 +19,7 @@ export class MidiNoteMessage {
             ].entries()) {
                 heap.add(v, {
                     pitch,
-                    velocity: i === 0 ? 100 : 0,
+                    velocity: i === 0 ? velocity : 0,
                     when: v
                 });
             }
