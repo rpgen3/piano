@@ -19,10 +19,4 @@ export class MidiProgramChangeMessage {
         }
         return [...heap];
     }
-    get bpm() {
-        return 6E7 / this.tempo;
-    }
-    set bpm(bpm) {
-        this.tempo = 6E7 / this.bpm;
-    }
 }
