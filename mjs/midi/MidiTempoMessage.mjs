@@ -1,8 +1,8 @@
 import {Heap} from 'https://rpgen3.github.io/maze/mjs/heap/Heap.mjs';
 export class MidiTempoMessage {
-    constructor({tempo, when}) {
-        this.tempo = tempo;
+    constructor({when, tempo}) {
         this.when = when;
+        this.tempo = tempo;
     }
     static makeArray(midi) {
         const heap = new Heap();
@@ -11,8 +11,8 @@ export class MidiTempoMessage {
             for(const {deltaTime, type, metaType, data} of event) {
                 currentTime += deltaTime;
                 if(type === 0xFF && metaType === 0x51) heap.add(currentTime, new this({
-                    tempo: data,
-                    when: currentTime
+                    when: currentTime,
+                    tempo: data
                 }));
             }
         }
