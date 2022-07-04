@@ -18,13 +18,10 @@ export class MidiTempoMessage {
         }
         return [...heap];
     }
-    static toggleTempoAndBpm(tempoOrBpm) {
-        return 6E7 / tempoOrBpm;
-    }
     get bpm() {
-        return this.constructor.toggleTempoAndBpm(this.tempo);
+        return 6E7 / this.tempo;
     }
     set bpm(bpm) {
-        this.tempo = this.constructor.toggleTempoAndBpm(this.bpm);
+        this.tempo = 6E7 / this.bpm;
     }
 }
