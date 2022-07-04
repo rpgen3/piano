@@ -1,18 +1,20 @@
 import {Heap} from 'https://rpgen3.github.io/maze/mjs/heap/Heap.mjs';
 export class MidiNoteMessage {
-    constructor({pitch, velocity, when}) {
+    constructor({ch, pitch, velocity, when}) {
+        this.ch = ch;
         this.pitch = pitch;
         this.velocity = velocity;
         this.when = when;
     }
     static makeArray(midiNoteArray) {
         const heap = new Heap();
-        for (const {pitch, velocity, start, end} of midiNoteArray) {
+        for (const {ch, pitch, velocity, start, end} of midiNoteArray) {
             for (const [i, v] of [
                 start,
                 end
             ].entries()) {
                 heap.add(v, new this({
+                    ch, 
                     pitch,
                     velocity: i === 0 ? velocity : 0,
                     when: v
