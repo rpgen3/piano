@@ -14,7 +14,7 @@ export class MidiNoteMessage {
                 end
             ].entries()) {
                 heap.add(v, new this({
-                    ch, 
+                    ch,
                     pitch,
                     velocity: i === 0 ? velocity : 0,
                     when: v
@@ -24,24 +24,28 @@ export class MidiNoteMessage {
         return this.fixArray([...heap]);
     }
     static fixArray(midiNoteMessageArray) {
-        const m = new Map;
+        const chMap = new Map;
+        const pitchMap = new Map;
         let currentTime = -1;
         for (const i of midiNoteMessageArray.keys()) {
             const {
+                ch,
                 pitch,
                 velocity,
                 when
             } = midiNoteMessageArray[i];
             if (currentTime === when) {
-                if (m.has(pitch) && velocity === 0) {
-                    const j = m.get(pitch);
+                if (pitchMap.has(pitch) && chMap.has(ch) && velocity === 0) {
+                    const j = pitchMap.get(pitch);
                     [midiNoteMessageArray[i], midiNoteMessageArray[j]] = [midiNoteMessageArray[j], midiNoteMessageArray[i]];
                 }
             } else {
                 currentTime = when;
-                m.clear();
+                chMap.clear();
+                pitchMap.clear();
             }
-            m.set(pitch, i);
+            chMap.set(ch, i);
+            pitchMap.set(pitch, i);
         }
         return midiNoteMessageArray;
     }
