@@ -7,12 +7,7 @@ export class MidiNoteMessage {
     }
     static makeArray(midiNoteArray) {
         const heap = new Heap();
-        for (const {
-            pitch,
-            velocity,
-            start,
-            end
-        } of midiNoteArray) {
+        for (const {pitch, velocity, start, end} of midiNoteArray) {
             for (const [i, v] of [
                 start,
                 end
