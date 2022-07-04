@@ -1,11 +1,11 @@
 import {Heap} from 'https://rpgen3.github.io/maze/mjs/heap/Heap.mjs';
 export class MidiNote {
-    constructor({ch, pitch, velocity, start, end = -1}) {
+    constructor({start, end = -1, ch, pitch, velocity}) {
+        this.start = start;
+        this.end = end;
         this.ch = ch;
         this.pitch = pitch;
         this.velocity = velocity;
-        this.start = start;
-        this.end = end;
     }
     static makeArray(midi) {
         const heap = new Heap();
@@ -23,10 +23,10 @@ export class MidiNote {
                     heap.add(unit.start, unit);
                     now.delete(pitch);
                 } else if (!isNoteOFF) now.set(pitch, new this({
+                    start: currentTime,
                     ch: channel,
                     pitch,
-                    velocity,
-                    start: currentTime
+                    velocity
                 }));
             }
         }
