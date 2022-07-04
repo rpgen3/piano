@@ -1,6 +1,6 @@
 import {Heap} from 'https://rpgen3.github.io/maze/mjs/heap/Heap.mjs';
 export class MidiNote {
-    constructor({start, end = -1, ch, pitch, velocity}) {
+    constructor({start, end, ch, pitch, velocity}) {
         this.start = start;
         this.end = end;
         this.ch = ch;
