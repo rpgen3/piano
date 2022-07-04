@@ -17,7 +17,7 @@ export class MidiNoteMessage {
                 start,
                 end
             ].entries()) {
-                heap.add(v, new MidiNoteMessage({
+                heap.add(v, new this({
                     pitch,
                     velocity: i === 0 ? velocity : 0,
                     when: v
