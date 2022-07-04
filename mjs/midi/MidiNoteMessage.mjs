@@ -7,13 +7,13 @@ export class MidiNoteMessage {
     }
     static makeArray(midiNoteArray) {
         const heap = new Heap();
-        for(const {
+        for (const {
             pitch,
             velocity,
             start,
             end
         } of midiNoteArray) {
-            for(const [i, v] of [
+            for (const [i, v] of [
                 start,
                 end
             ].entries()) {
@@ -24,28 +24,27 @@ export class MidiNoteMessage {
                 }));
             }
         }
-        return this.#fixArray([...heap]);
+        return this.fixArray([...heap]);
     }
-    static #fixArray(midiNoteMessageArray) {
+    static fixArray(midiNoteMessageArray) {
         const m = new Map;
         let currentTime = -1;
-        for(const midiNoteMessage of midiNoteMessageArray) {
+        for (const i of midiNoteMessageArray.keys()) {
             const {
                 pitch,
                 velocity,
                 when
-            } = midiNoteMessage;
-            if(currentTime === when) {
-                if(m.has(pitch) && velocity === 0) {
-                    const _midiNoteMessage = m.get(pitch);
-                    midiNoteMessage.velocity = _midiNoteMessage.velocity;
-                    _midiNoteMessage.velocity = 0;
+            } = midiNoteMessageArray[i];
+            if (currentTime === when) {
+                if (m.has(pitch) && velocity === 0) {
+                    const j = m.get(pitch);
+                    [midiNoteMessageArray[i], midiNoteMessageArray[j]] = [midiNoteMessageArray[j], midiNoteMessageArray[i]];
                 }
             } else {
                 currentTime = when;
                 m.clear();
             }
-            m.set(pitch, midiNoteMessage);
+            m.set(pitch, i);
         }
         return midiNoteMessageArray;
     }
