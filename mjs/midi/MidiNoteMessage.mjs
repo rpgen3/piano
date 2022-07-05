@@ -1,21 +1,21 @@
 import {Heap} from 'https://rpgen3.github.io/maze/mjs/heap/Heap.mjs';
 export class MidiNoteMessage {
-    constructor({when, ch, pitch, velocity}) {
+    constructor({when, channel, pitch, velocity}) {
         this.when = when;
-        this.ch = ch;
+        this.channel = channel;
         this.pitch = pitch;
         this.velocity = velocity;
     }
     static makeArray(midiNoteArray) {
         const heap = new Heap();
-        for (const {start, end, ch, pitch, velocity} of midiNoteArray) {
+        for (const {start, end, channel, pitch, velocity} of midiNoteArray) {
             for (const [i, v] of [
                 start,
                 end
             ].entries()) {
                 heap.add(v, new this({
                     when: v,
-                    ch,
+                    channel,
                     pitch,
                     velocity: i === 0 ? velocity : 0
                 }));
@@ -24,27 +24,27 @@ export class MidiNoteMessage {
         return this.fixArray([...heap]);
     }
     static fixArray(midiNoteMessageArray) {
-        const chMap = new Map;
+        const channelMap = new Map;
         const pitchMap = new Map;
         let currentTime = -1;
         for (const i of midiNoteMessageArray.keys()) {
             const {
                 when,
-                ch,
+                channel,
                 pitch,
                 velocity
             } = midiNoteMessageArray[i];
             if (currentTime === when) {
-                if (pitchMap.has(pitch) && chMap.has(ch) && velocity === 0) {
+                if (pitchMap.has(pitch) && channelMap.has(channel) && velocity === 0) {
                     const j = pitchMap.get(pitch);
                     [midiNoteMessageArray[i], midiNoteMessageArray[j]] = [midiNoteMessageArray[j], midiNoteMessageArray[i]];
                 }
             } else {
                 currentTime = when;
-                chMap.clear();
+                channelMap.clear();
                 pitchMap.clear();
             }
-            chMap.set(ch, i);
+            channelMap.set(channel, i);
             pitchMap.set(pitch, i);
         }
         return midiNoteMessageArray;
