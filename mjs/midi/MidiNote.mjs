@@ -1,9 +1,9 @@
 import {Heap} from 'https://rpgen3.github.io/maze/mjs/heap/Heap.mjs';
 export class MidiNote {
-    constructor({start, end, ch, pitch, velocity}) {
+    constructor({start, end, channel, pitch, velocity}) {
         this.start = start;
         this.end = end;
-        this.ch = ch;
+        this.channel = channel;
         this.pitch = pitch;
         this.velocity = velocity;
     }
@@ -24,7 +24,7 @@ export class MidiNote {
                     now.delete(pitch);
                 } else if (!isNoteOFF) now.set(pitch, new this({
                     start: currentTime,
-                    ch: channel,
+                    channel,
                     pitch,
                     velocity
                 }));
