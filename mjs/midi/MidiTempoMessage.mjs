@@ -5,6 +5,12 @@ export class MidiTempoMessage {
         this.tempo = tempo;
         if (bpm !== null) this.bpm = bpm;
     }
+    get bpm() {
+        return 6E7 / this.tempo;
+    }
+    set bpm(bpm) {
+        this.tempo = 6E7 / bpm;
+    }
     static makeArray(midi) {
         const heap = new Heap();
         for(const {event} of midi.track) {
@@ -18,11 +24,5 @@ export class MidiTempoMessage {
             }
         }
         return [...heap];
-    }
-    get bpm() {
-        return 6E7 / this.tempo;
-    }
-    set bpm(bpm) {
-        this.tempo = 6E7 / bpm;
     }
 }
