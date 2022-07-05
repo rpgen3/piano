@@ -1,8 +1,9 @@
 import {Heap} from 'https://rpgen3.github.io/maze/mjs/heap/Heap.mjs';
 export class MidiTempoMessage {
-    constructor({when, tempo}) {
+    constructor({when, tempo, bpm = null}) {
         this.when = when;
         this.tempo = tempo;
+        if (bpm !== null) this.bpm = bpm;
     }
     static makeArray(midi) {
         const heap = new Heap();
@@ -22,6 +23,6 @@ export class MidiTempoMessage {
         return 6E7 / this.tempo;
     }
     set bpm(bpm) {
-        this.tempo = 6E7 / this.bpm;
+        this.tempo = 6E7 / bpm;
     }
 }
