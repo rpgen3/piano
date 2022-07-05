@@ -1,7 +1,8 @@
 import {Heap} from 'https://rpgen3.github.io/maze/mjs/heap/Heap.mjs';
 export class MidiProgramChangeMessage {
-    constructor({when, ch, programChange}) {
+    constructor({when, channel, programChange}) {
         this.when = when;
+        this.channel = channel;
         this.programChange = programChange;
     }
     static makeArray(midi) {
@@ -12,7 +13,7 @@ export class MidiProgramChangeMessage {
                 currentTime += deltaTime;
                 if(type === 0xC) heap.add(currentTime, new this({
                     when: currentTime,
-                    ch: channel,
+                    channel,
                     programChange: data
                 }));
             }
