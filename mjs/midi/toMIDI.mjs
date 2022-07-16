@@ -14,9 +14,10 @@ export const toMIDI = ({tracks, bpm = 120, div = 0x01E0}) => {
             velocity,
             when
         } of track) {
-            a.push(...deltaTime(when - now));
+            const _when = Math.round(when);
+            a.push(...deltaTime(_when - now));
             a.push(0x90 | n, pitch, velocity);
-            now = when;
+            now = _when;
         }
     });
     return URL.createObjectURL(new Blob([new Uint8Array(arr).buffer], {type: 'audio/midi'}));
