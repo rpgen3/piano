@@ -1,9 +1,9 @@
 import {Heap} from 'https://rpgen3.github.io/maze/mjs/heap/Heap.mjs';
 export class MidiProgramChangeMessage {
-    constructor({when, channel, programChange}) {
+    constructor({when, channel, program}) {
         this.when = when;
         this.channel = channel;
-        this.programChange = programChange;
+        this.program = program;
     }
     static makeArray(midi) {
         const heap = new Heap();
