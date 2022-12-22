@@ -14,7 +14,7 @@ export class MidiProgramChangeMessage {
                 if(type === 0xC) heap.add(currentTime, new this({
                     when: currentTime,
                     channel,
-                    programChange: data
+                    program: data
                 }));
             }
         }
