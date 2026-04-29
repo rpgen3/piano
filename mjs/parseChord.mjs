@@ -183,7 +183,7 @@ const parseBase = (() => {
     p.set('+', [0, 4, 8]); // aug
     p.set(['Φ', 'φ', 'ø'], [0, 3, 6, 10]);
     return (input, output) => {
-        const res = p.parse(input);
+        let res = p.parse(input);
 
         // --- 'm' の特殊判定 ---
         // 1. すでに他の記号にマッチしていない
