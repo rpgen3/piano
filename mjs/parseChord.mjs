@@ -174,10 +174,11 @@ const parsePitch = (() => {
     };
 })();
 const parseBase = (() => {
-    const p = new Parser,
-          major = [0, 4, 7],
-          dim = [0, 3, 6];
-    p.set(['min', 'Min', 'minor', 'Minor', '-'], [0, 3, 7]);
+    const p = new Parser;
+    const major = [0, 4, 7];
+    const minor = [0, 3, 7];
+    const dim = [0, 3, 6];
+    p.set(['min', 'Min', 'minor', 'Minor', '-'], minor);
     p.set(['dim', '〇'], dim);
     p.set('+', [0, 4, 8]); // aug
     p.set(['Φ', 'φ', 'ø'], [0, 3, 6, 10]);
