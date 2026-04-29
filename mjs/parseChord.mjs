@@ -177,19 +177,22 @@ const parseBase = (() => {
     const p = new Parser,
           major = [0, 4, 7],
           dim = [0, 3, 6];
-    p.set(['m', 'min', 'Min', 'minor', 'Minor', '-'], [0, 3, 7]);
+    p.set(['min', 'Min', 'minor', 'Minor', '-'], [0, 3, 7]);
     p.set(['dim', '〇'], dim);
     p.set('+', [0, 4, 8]); // aug
     p.set(['Φ', 'φ', 'ø'], [0, 3, 6, 10]);
     return (input, output) => {
         const res = p.parse(input);
 
+        // --- 'm' の特殊判定 ---
+        // 1. すでに他の記号にマッチしていない
+        // 2. 現在の文字が 'm' である
+        // 3. 次の文字列が 'aj' (major) ではない
         if (res === null && input.char === 'm') {
-            // 次の文字列が 'aj' で始まる場合は Major7th 系統なので無視
-            // slice(1, 3) で 'aj' かどうかを確認
-            if (input.str.slice(input.idx + 1, input.idx + 3).toLowerCase() !== 'aj') {
+            const next2 = input.str.slice(input.idx + 1, input.idx + 3).toLowerCase();
+            if (next2 !== 'aj') {
                 res = minor;
-                input.idx++; // 'm' の分だけ進める
+                input.idx++; // 'm' を消費
             }
         }
 
