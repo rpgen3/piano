@@ -183,6 +183,16 @@ const parseBase = (() => {
     p.set(['Φ', 'φ', 'ø'], [0, 3, 6, 10]);
     return (input, output) => {
         const res = p.parse(input);
+
+        if (res === null && input.char === 'm') {
+            // 次の文字列が 'aj' で始まる場合は Major7th 系統なので無視
+            // slice(1, 3) で 'aj' かどうかを確認
+            if (input.str.slice(input.idx + 1, input.idx + 3).toLowerCase() !== 'aj') {
+                res = minor;
+                input.idx++; // 'm' の分だけ進める
+            }
+        }
+
         if(res !== null) output.isChord = true;
         output.chord = new Set(res || major);
         if(res === dim) {
